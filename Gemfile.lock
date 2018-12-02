@@ -1,0 +1,21 @@
+PATH
+  remote: .
+  specs:
+    shaf_client (0.0.1)
+      faraday (~> 0.15)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    faraday (0.15.4)
+      multipart-post (>= 1.2, < 3)
+    multipart-post (2.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  shaf_client!
+
+BUNDLED WITH
+   1.16.6
