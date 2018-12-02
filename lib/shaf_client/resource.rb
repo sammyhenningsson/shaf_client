@@ -1,6 +1,7 @@
 require 'json'
+require 'shaf_client/link'
 
-module ShafClient
+class ShafClient
   class Resource
     attr_reader :attributes, :links, :embeds
     def initialize(client, payload)

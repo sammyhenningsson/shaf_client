@@ -1,4 +1,4 @@
-module ShafClient
+class ShafClient
   class Link
     attr_reader :rel, :href, :templated
 

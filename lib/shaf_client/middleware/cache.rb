@@ -1,8 +1,11 @@
 # FIXME zip payload
 
-module ShafClient
+class ShafClient
   module Middleware
     class Cache
+      module Control
+      end
+
       def initialize(app)
         @app = app
         @cache = {}
