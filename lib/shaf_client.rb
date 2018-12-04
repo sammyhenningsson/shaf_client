@@ -1,6 +1,7 @@
 require 'faraday'
 require 'shaf_client/middleware/cache'
 require 'shaf_client/resource'
+require 'shaf_client/form'
 
 class ShafClient
   extend Middleware::Cache::Control
@@ -21,10 +22,18 @@ class ShafClient
     get(@root_uri)
   end
 
-  def get(uri, **headers)
-    with_resource do
-      request(method: :get, uri: uri, headers: headers)
+  %i[get put post delete patch].each do |method|
+    define_method(method) do |uri, payload = nil|
+      with_resource do
+        request(method: method, uri: uri, payload: payload)
+      end
     end
+  end
+
+  def get_form(uri)
+    response = request(method: :get, uri: uri)
+    body = response.respond_to?(:body) ? response.body : response
+    Form.new(self, body)
   end
 
   def with_resource
@@ -33,7 +42,8 @@ class ShafClient
     Resource.new(self, body)
   end
 
-  def request(method:, uri:, payload: nil, headers:)
+  def request(method:, uri:, payload: nil, headers: {})
+    payload = JSON.generate(payload) if payload && !payload.is_a?(String)
     @client.send(method) do |req|
       req.url uri
       req.body = payload if payload

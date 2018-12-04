@@ -10,6 +10,42 @@ class ShafClient
       parse
     end
 
+    def to_s
+      attributes
+        .merge(_links: links.transform_values(&:to_s))
+        .merge(_embedded: embeds.transform_values(&:to_s))
+        .to_s
+    end
+
+    def attribute(key)
+      attributes.fetch(key.to_sym)
+    end
+
+    def link(rel)
+      links.fetch(rel.to_sym)
+    end
+
+    def embedded(rel)
+      embeds.fetch(rel.to_sym)
+    end
+
+    def [](key)
+      attributes[key]
+    end
+
+    %i[get put post delete patch get_form].each do |method|
+      define_method(method) do |rel, payload = nil|
+        href = link(rel).href
+        args = [method, href]
+        args << payload unless method.to_s.start_with? 'get'
+        client.send(*args)
+      end
+    end
+
+    def actions
+      links.keys
+    end
+
     private
 
     attr_reader :client
@@ -18,7 +54,7 @@ class ShafClient
       return unless @payload
       @attributes = JSON.parse(@payload).transform_keys(&:to_sym)
       @links = parse_links(@attributes.delete(:_links))
-      @embeds = @attributes.delete(:_embedded)
+      @embeds = parse_embedded(@attributes.delete(:_embedded))
     end
 
     def parse_links(hash)
@@ -28,31 +64,14 @@ class ShafClient
       end
     end
 
-    # def parse_embedded(hash)
-    #   # TODO
-    # end
-
-    def attribute(key)
-      attributes[key.to_sym]
-    end
-
-    def link(rel)
-      links[rel.to_sym]
-    end
-
-    def embedded(rel)
-      embeds[rel.to_sym]
-    end
-
-    def follow_link(rel)
-      client.get(link(rel).href)
+    def parse_embedded(hash)
+      # TODO
+      {}
     end
 
     def method_missing(method_name, *args, &block)
       if attributes.key?(method_name)
         attribute[method_name]
-      elsif links.key?(method_name)
-        follow_link(method_name)
       else
         super
       end
@@ -60,8 +79,6 @@ class ShafClient
 
     def respond_to_missing?(method_name, include_private = false)
       return true if attributes.key?(method_name)
-      return true if links.key?(method_name)
-      return true if embeds.key?(method_name)
       super
     end
   end
