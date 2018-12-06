@@ -32,14 +32,12 @@ class ShafClient
 
   def get_form(uri)
     response = request(method: :get, uri: uri)
-    body = response.respond_to?(:body) ? response.body : response
-    Form.new(self, body)
+    Form.new(self, response.body)
   end
 
   def with_resource
     response = yield
-    body = response.respond_to?(:body) ? response.body : response
-    Resource.new(self, body)
+    Resource.new(self, response.body)
   end
 
   def request(method:, uri:, payload: nil, headers: {})

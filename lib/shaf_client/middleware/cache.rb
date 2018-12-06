@@ -5,6 +5,8 @@ class ShafClient
     class Cache
       DEFAULT_THRESHOLD = 10_000
 
+      Response = Struct.new(:status, :body, :headers, keyword_init: true)
+
       module Control
         def cache_size
           Cache.size
@@ -49,7 +51,7 @@ class ShafClient
         def get(key:, check_expiration: true)
           entry = nil
           mutex.synchronize do
-            entry = cache[key].dup
+            entry = cache[key.to_sym].dup
           end
           return entry[:payload] if valid?(entry, check_expiration)
           yield if block_given?
@@ -57,7 +59,7 @@ class ShafClient
 
         def get_etag(key:)
           mutex.synchronize do
-            cache.dig(key, :etag)
+            cache.dig(key.to_sym, :etag)
           end
         end
 
@@ -65,7 +67,7 @@ class ShafClient
           return unless payload && key && (etag || expire_at)
 
           mutex.synchronize do
-            cache[key] = {
+            cache[key.to_sym] = {
               payload: payload,
               etag: etag,
               expire_at: expire_at
@@ -123,7 +125,7 @@ class ShafClient
 
         if request_env[:method] == :get
           cached = self.class.get(key: key)
-          return cached if cached # FIXME: return a Faraday response
+          return Response.new(body: cached, headers: {}) if cached
         end
 
         add_etag(request_env, key)

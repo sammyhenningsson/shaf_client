@@ -1,8 +1,8 @@
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
-  t.libs << 'test'
-  t.pattern = 'test/**/*test.rb'
+  t.libs << 'spec'
+  t.pattern = 'spec/**/*_spec.rb'
 end
 
 desc "Run tests"
