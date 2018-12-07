@@ -8,13 +8,13 @@ class ShafClient
 
   MIME_TYPE_JSON = 'application/json'
 
-  def initialize(root_uri, **headers)
+  def initialize(root_uri, **options)
     @root_uri = root_uri.dup
-    @default_headers = headers.merge('Content-Type' => MIME_TYPE_JSON)
+    adapter = options.fetch(:faraday_adapter, :net_http)
+    setup_default_headers options
     @client = Faraday.new(url: root_uri) do |conn|
       conn.use Middleware::Cache
-      # Last middleware must be the adapter:
-      conn.adapter :net_http # switch to persistent??
+      conn.adapter adapter
     end
   end
 
@@ -33,6 +33,18 @@ class ShafClient
   def get_form(uri)
     response = request(method: :get, uri: uri)
     Form.new(self, response.body)
+  end
+
+  private
+
+  def setup_default_headers(options)
+    @default_headers = {
+      'Content-Type' => options.fetch(:content_type, MIME_TYPE_JSON)
+    }
+    return unless token = options[:auth_token]
+
+    header = options.fetch(:auth_header, 'X-Auth-Token')
+    @default_headers[header] = token
   end
 
   def with_resource

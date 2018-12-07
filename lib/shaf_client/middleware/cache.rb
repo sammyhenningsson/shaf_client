@@ -162,6 +162,7 @@ class ShafClient
       end
 
       def cache_key(env)
+        # FIXME how to get the right header for each client?
         :"#{env[:url]}.#{env[:request_headers]['X-AUTH-TOKEN']}"
       end
 
