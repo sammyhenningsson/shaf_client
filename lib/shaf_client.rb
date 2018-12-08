@@ -11,8 +11,10 @@ class ShafClient
   def initialize(root_uri, **options)
     @root_uri = root_uri.dup
     adapter = options.fetch(:faraday_adapter, :net_http)
-    setup_default_headers options
+    setup options
+
     @client = Faraday.new(url: root_uri) do |conn|
+      conn.basic_auth(@user, @pass) if basic_auth?
       conn.use Middleware::Cache, auth_header: auth_header
       conn.adapter adapter
     end
@@ -39,6 +41,11 @@ class ShafClient
 
   attr_reader :auth_header
 
+  def setup(options)
+    setup_default_headers options
+    setup_basic_auth options
+  end
+
   def setup_default_headers(options)
     @default_headers = {
       'Content-Type' => options.fetch(:content_type, MIME_TYPE_JSON)
@@ -47,6 +54,15 @@ class ShafClient
 
     @auth_header = options.fetch(:auth_header, 'X-Auth-Token')
     @default_headers[@auth_header] = token
+  end
+
+  def setup_basic_auth(options)
+    @user, @pass = options.slice(:user, :password).values
+    @auth_header = options.fetch(:auth_header, 'Authorization') if basic_auth?
+  end
+
+  def basic_auth?
+    @user && @pass
   end
 
   def with_resource
