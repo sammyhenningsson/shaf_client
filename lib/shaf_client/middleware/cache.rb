@@ -116,8 +116,9 @@ class ShafClient
         end
       end
 
-      def initialize(app)
+      def initialize(app, **options)
         @app = app
+        @options = options
       end
 
       def call(request_env)
@@ -162,8 +163,11 @@ class ShafClient
       end
 
       def cache_key(env)
-        # FIXME how to get the right header for each client?
-        :"#{env[:url]}.#{env[:request_headers]['X-AUTH-TOKEN']}"
+        :"#{env[:url]}.#{env[:request_headers][auth_header]}"
+      end
+
+      def auth_header
+        @options.fetch(:auth_header, 'X-AUTH-TOKEN')
       end
 
       def expiration(cache_control)

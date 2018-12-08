@@ -13,13 +13,18 @@ class ShafClient
     adapter = options.fetch(:faraday_adapter, :net_http)
     setup_default_headers options
     @client = Faraday.new(url: root_uri) do |conn|
-      conn.use Middleware::Cache
+      conn.use Middleware::Cache, auth_header: auth_header
       conn.adapter adapter
     end
   end
 
   def get_root
     get(@root_uri)
+  end
+
+  def get_form(uri)
+    response = request(method: :get, uri: uri)
+    Form.new(self, response.body)
   end
 
   %i[get put post delete patch].each do |method|
@@ -30,12 +35,9 @@ class ShafClient
     end
   end
 
-  def get_form(uri)
-    response = request(method: :get, uri: uri)
-    Form.new(self, response.body)
-  end
-
   private
+
+  attr_reader :auth_header
 
   def setup_default_headers(options)
     @default_headers = {
@@ -43,8 +45,8 @@ class ShafClient
     }
     return unless token = options[:auth_token]
 
-    header = options.fetch(:auth_header, 'X-Auth-Token')
-    @default_headers[header] = token
+    @auth_header = options.fetch(:auth_header, 'X-Auth-Token')
+    @default_headers[@auth_header] = token
   end
 
   def with_resource
@@ -53,7 +55,7 @@ class ShafClient
   end
 
   def request(method:, uri:, payload: nil, headers: {})
-    payload = JSON.generate(payload) if payload && !payload.is_a?(String)
+    payload = JSON.generate(payload) if payload&.is_a?(Hash)
     @client.send(method) do |req|
       req.url uri
       req.body = payload if payload
