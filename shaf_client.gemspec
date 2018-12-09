@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name        = 'shaf_client'
-  gem.version     = '0.1.0'
+  gem.version     = '0.1.1'
   gem.summary     = "HAL client for Shaf"
   gem.description = "A HAL client customized for Shaf APIs"
   gem.authors     = ["Sammy Henningsson"]
