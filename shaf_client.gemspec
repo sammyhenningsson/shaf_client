@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.description = "A HAL client customized for Shaf APIs"
   gem.authors     = ["Sammy Henningsson"]
   gem.email       = 'sammy.henningsson@gmail.com'
-  gem.homepage    = "https://github.com/sammyhenningsson/shafClient"
+  gem.homepage    = "https://github.com/sammyhenningsson/shaf_client"
   gem.license     = "MIT"
 
   gem.cert_chain  = ['certs/sammyhenningsson.pem']
