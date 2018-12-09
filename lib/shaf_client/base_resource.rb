@@ -1,9 +1,10 @@
 require 'json'
 require 'shaf_client/link'
+require 'shaf_client/curie'
 
 class ShafClient
   class BaseResource
-    attr_reader :attributes, :links, :embeds
+    attr_reader :attributes, :links, :curies, :embedded_resources
 
     def initialize(payload)
       @payload =
@@ -12,13 +13,14 @@ class ShafClient
         else
           payload
         end
-      parse if @payload
+
+      parse
     end
 
     def to_s
       attributes
         .merge(_links: transform_values_to_s(links))
-        .merge(_embedded: transform_values_to_s(embeds))
+        .merge(_embedded: transform_values_to_s(embedded_resources))
         .to_s
     end
 
@@ -30,8 +32,12 @@ class ShafClient
       links.fetch(rel.to_sym)
     end
 
+    def curie(rel)
+      curies.fetch(rel.to_sym)
+    end
+
     def embedded(rel)
-      embeds.fetch(rel.to_sym)
+      embedded_resources.fetch(rel.to_sym)
     end
 
     def [](key)
@@ -44,23 +50,40 @@ class ShafClient
 
     private
 
-    def parse
-      @attributes = @payload.transform_keys(&:to_sym)
-      @links = parse_links(@attributes.delete(:_links))
-      @embeds = parse_embedded(@attributes.delete(:_embedded))
+    def payload
+      @payload ||= {}
     end
 
-    def parse_links(hash)
-      return {} unless hash
-      hash.each_with_object({}) do |(key, value), h|
-        h[key.to_sym] = Link.from(value)
+    def parse
+      @attributes = payload.transform_keys(&:to_sym)
+      parse_links
+      parse_embedded
+    end
+
+    def parse_links
+      links = attributes.delete(:_links) || {}
+      @links ||= {}
+      @curies ||= {}
+
+      links.each do |key, value|
+        next parse_curies(value) if key == 'curies'
+        @links[key.to_sym] = Link.from(value)
       end
     end
 
-    def parse_embedded(hash)
-      return {} unless hash
-      hash.each_with_object({}) do |(key, value), h|
-        h[key.to_sym] =
+    def parse_curies(curies)
+      curies.each do |value|
+        curie = Curie.from(value)
+        @curies[curie.name.to_sym] = curie
+      end
+    end
+
+    def parse_embedded
+      embedded = @attributes.delete(:_embedded) || {}
+      @embedded_resources ||= {}
+
+      embedded.each do |key, value|
+        @embedded_resources[key.to_sym] =
           if value.is_a? Array
             value.map { |d| BaseResource.new(d) }
           else

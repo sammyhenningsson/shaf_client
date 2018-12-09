@@ -18,6 +18,20 @@ class ShafClient
       end
     end
 
+    def get_doc(rel:)
+      rel = rel.to_s
+      curie_name, rel =
+        if rel.include? ':'
+          rel.split(':')
+        else
+          [:doc, rel]
+        end
+
+      curie = curie(curie_name)
+      uri = curie.resolve_templated(rel: rel)
+      client.get_doc(uri)
+    end
+
     private
 
     attr_reader :client

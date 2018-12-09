@@ -1,4 +1,5 @@
 require 'faraday'
+require 'json'
 require 'shaf_client/middleware/cache'
 require 'shaf_client/resource'
 require 'shaf_client/form'
@@ -27,6 +28,11 @@ class ShafClient
   def get_form(uri)
     response = request(method: :get, uri: uri)
     Form.new(self, response.body)
+  end
+
+  def get_doc(uri)
+    response = request(method: :get, uri: uri)
+    response&.body || ''
   end
 
   %i[get put post delete patch].each do |method|
