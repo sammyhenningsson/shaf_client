@@ -17,4 +17,6 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 2.5'
   gem.add_runtime_dependency "faraday", '~> 0.15'
+  gem.add_development_dependency "rake", '~> 12.0'
+  gem.add_development_dependency "minitest", '~> 5', '>= 5.10'
 end
