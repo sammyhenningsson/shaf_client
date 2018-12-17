@@ -1,4 +1,6 @@
 # Shaf Client
+[![Gem Version](https://badge.fury.io/rb/shaf_client.svg)](https://badge.fury.io/rb/shaf_client)
+[![Build Status](https://travis-ci.org/sammyhenningsson/shaf_client.svg?branch=master)](https://travis-ci.org/sammyhenningsson/shaf_client)  
 ShafClient is simple [HAL](http://stateless.co/hal_specification.html) client with a few customizations for APIs build with [Shaf](https://github.com/sammyhenningsson/shaf).
 
 ## Installation
