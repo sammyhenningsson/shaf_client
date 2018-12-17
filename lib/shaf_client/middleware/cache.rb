@@ -134,6 +134,8 @@ class ShafClient
         add_etag(request_env, key)
 
         @app.call(request_env).on_complete do |response_env|
+          # key might have changed in other middleware
+          key = cache_key(response_env)
           add_cached_payload(response_env, key)
           cache_response(response_env, key)
           self.class.inc_request_count
@@ -141,6 +143,7 @@ class ShafClient
       end
 
       def add_etag(env, key = nil)
+        return unless %i[get head].include? env[:method]
         key ||= cache_key(env)
         etag = self.class.get_etag(key: key)
         env[:request_headers]['If-None-Match'] = etag if etag
