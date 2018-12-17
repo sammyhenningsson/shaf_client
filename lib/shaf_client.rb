@@ -21,24 +21,24 @@ class ShafClient
     end
   end
 
-  def get_root
-    get(@root_uri)
+  def get_root(**options)
+    get(@root_uri, **options)
   end
 
-  def get_form(uri)
-    response = request(method: :get, uri: uri)
+  def get_form(uri, **options)
+    response = request(method: :get, uri: uri, opts: options)
     Form.new(self, response.body)
   end
 
-  def get_doc(uri)
-    response = request(method: :get, uri: uri)
+  def get_doc(uri, **options)
+    response = request(method: :get, uri: uri, opts: options)
     response&.body || ''
   end
 
   %i[get put post delete patch].each do |method|
-    define_method(method) do |uri, payload = nil|
+    define_method(method) do |uri, payload = nil, **options|
       with_resource do
-        request(method: method, uri: uri, payload: payload)
+        request(method: method, uri: uri, payload: payload, opts: options)
       end
     end
   end
@@ -76,12 +76,15 @@ class ShafClient
     Resource.new(self, response.body)
   end
 
-  def request(method:, uri:, payload: nil, headers: {})
+  def request(method:, uri:, payload: nil, opts: {})
     payload = JSON.generate(payload) if payload&.is_a?(Hash)
+    headers = @default_headers.merge(opts.fetch(:headers, {}))
+    headers[:skip_cache] = true if opts[:skip_cache]
+
     @client.send(method) do |req|
       req.url uri
       req.body = payload if payload
-      req.headers.merge! @default_headers.merge(headers)
+      req.headers.merge! headers
     end
   end
 end

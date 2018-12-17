@@ -33,5 +33,19 @@ class ShafClient
     def submit
       client.send(http_method, target, @values)
     end
+
+    def reload!
+      self << get_form(:self, skip_cache: true)
+    end
+
+    protected
+
+    def <<(other)
+      @values = {}
+      other.values.each do |key, value|
+        @values[key] = value.dup
+      end
+      super
+    end
   end
 end

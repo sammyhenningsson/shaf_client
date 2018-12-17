@@ -107,4 +107,41 @@ describe ShafClient::BaseResource do
     items.first.id.must_equal 1
     items.last.name.must_equal 'item2'
   end
+
+  it '#<<' do
+    payload1 = JSON.generate(
+      a: 'one',
+      b: 1,
+      _links: {
+        self: { href: '/one' }
+      },
+      _embedded: {
+        item: {
+          c: 'first'
+        }
+      }
+    )
+    resource1 = ShafClient::BaseResource.new(payload1)
+
+    payload2 = JSON.generate(
+      a: 'two',
+      b: 2,
+      _links: {
+        self: { href: '/two' }
+      },
+      _embedded: {
+        item: {
+          c: 'second'
+        }
+      }
+    )
+    resource2 = ShafClient::BaseResource.new(payload2)
+
+    resource2.send(:<<, resource1)
+
+    resource2.attribute(:a).must_equal('one')
+    resource2.attribute(:b).must_equal(1)
+    resource2.link(:self).href.must_equal('/one')
+    resource2.embedded(:item).attribute(:c).must_equal('first')
+  end
 end

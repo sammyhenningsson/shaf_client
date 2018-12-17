@@ -124,7 +124,9 @@ class ShafClient
       def call(request_env)
         key = cache_key(request_env)
 
-        if request_env[:method] == :get
+        skip_cache = request_env[:request_headers].delete :skip_cache
+
+        if !skip_cache && request_env[:method] == :get
           cached = self.class.get(key: key)
           return Response.new(body: cached, headers: {}) if cached
         end

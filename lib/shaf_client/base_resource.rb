@@ -48,11 +48,22 @@ class ShafClient
       links.keys
     end
 
-    private
+    protected
 
     def payload
       @payload ||= {}
     end
+
+    def <<(other)
+      @payload            = other.payload.dup
+      @attributes         = other.attributes.dup
+      @links              = other.links.dup
+      @curies             = other.curies.dup
+      @embedded_resources = other.embedded_resources.dup
+      self
+    end
+
+    private
 
     def parse
       @attributes = payload.transform_keys(&:to_sym)
