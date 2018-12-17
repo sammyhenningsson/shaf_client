@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 require 'json'
 require 'shaf_client/middleware/cache'
@@ -27,7 +29,7 @@ class ShafClient
 
   def get_form(uri, **options)
     response = request(method: :get, uri: uri, opts: options)
-    Form.new(self, response.body)
+    Form.new(self, response.body, response.status, response.headers)
   end
 
   def get_doc(uri, **options)
@@ -36,10 +38,14 @@ class ShafClient
   end
 
   %i[get put post delete patch].each do |method|
-    define_method(method) do |uri, payload = nil, **options|
-      with_resource do
-        request(method: method, uri: uri, payload: payload, opts: options)
-      end
+    define_method(method) do |uri, payload: nil, **options|
+      response = request(
+        method: method,
+        uri: uri,
+        payload: payload,
+        opts: options
+      )
+      Resource.new(self, response.body, response.status, response.headers)
     end
   end
 
@@ -69,11 +75,6 @@ class ShafClient
 
   def basic_auth?
     @user && @pass
-  end
-
-  def with_resource
-    response = yield
-    Resource.new(self, response.body)
   end
 
   def request(method:, uri:, payload: nil, opts: {})

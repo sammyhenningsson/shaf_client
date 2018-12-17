@@ -31,7 +31,7 @@ class ShafClient
     # def validate; end
 
     def submit
-      client.send(http_method, target, @values)
+      client.send(http_method, target, payload: @values)
     end
 
     def reload!

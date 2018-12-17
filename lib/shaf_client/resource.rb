@@ -3,9 +3,12 @@ require 'shaf_client/base_resource'
 
 class ShafClient
   class Resource < BaseResource
+    attr_reader :http_status, :headers
 
-    def initialize(client, payload)
+    def initialize(client, payload, status = nil, headers = nil)
       @client = client
+      @http_status = status
+      @headers = headers
       super(payload)
     end
 
@@ -13,8 +16,7 @@ class ShafClient
       define_method(method) do |rel, payload = nil, **options|
         href = link(rel).href
         args = [method, href]
-        args << payload unless method.to_s.start_with? 'get'
-        client.send(*args, **options)
+        client.send(*args, payload: payload, **options)
       end
     end
 
@@ -34,6 +36,14 @@ class ShafClient
 
     def reload!
       self << get(:self, skip_cache: true)
+    end
+
+    protected
+
+    def <<(other)
+      @http_status  = other.http_status.dup
+      @headers      = other.headers.dup
+      super
     end
 
     private

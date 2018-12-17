@@ -75,11 +75,10 @@ class ShafClient
     end
 
     def parse_links
-      links = attributes.delete(:_links) || {}
       @links ||= {}
       @curies ||= {}
 
-      links.each do |key, value|
+      (attributes.delete(:_links) || {}).each do |key, value|
         next parse_curies(value) if key == 'curies'
         @links[key.to_sym] = Link.from(value)
       end
@@ -107,11 +106,8 @@ class ShafClient
     end
 
     def method_missing(method_name, *args, &block)
-      if attributes.key?(method_name)
-        attribute(method_name)
-      else
-        super
-      end
+      return super unless attributes.key?(method_name)
+      attribute(method_name)
     end
 
     def respond_to_missing?(method_name, include_private = false)
