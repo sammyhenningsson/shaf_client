@@ -32,11 +32,11 @@ class ShafClient
       end
     end
 
-    def to_s
+    def to_h
       {
         href: href,
         templated: templated?
-      }.to_s
+      }
     end
   end
 end

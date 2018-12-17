@@ -17,11 +17,14 @@ class ShafClient
       parse
     end
 
-    def to_s
+    def to_h
       attributes
         .merge(_links: transform_values_to_s(links))
         .merge(_embedded: transform_values_to_s(embedded_resources))
-        .to_s
+    end
+
+    def to_s
+      JSON.pretty_generate(to_h)
     end
 
     def attribute(key)
@@ -119,9 +122,9 @@ class ShafClient
     def transform_values_to_s(hash)
       hash.transform_values do |value|
         if value.is_a? Array
-          value.map(&:to_s)
+          value.map(&:to_h)
         else
-          value.to_s
+          value.to_h
         end
       end
     end
