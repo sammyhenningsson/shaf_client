@@ -30,6 +30,7 @@ class ShafClient
       let(:response_env) do
         {
           status: 200,
+          url: url,
           body: 'hello',
           response_headers: {
             'cache-control' => 'max-age=30',

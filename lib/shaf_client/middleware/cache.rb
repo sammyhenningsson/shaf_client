@@ -122,7 +122,7 @@ class ShafClient
       end
 
       def call(request_env)
-        key = cache_key(request_env)
+        key = cache_key(request_env[:url], request_env[:request_headers])
 
         skip_cache = request_env[:request_headers].delete :skip_cache
 
@@ -135,7 +135,7 @@ class ShafClient
 
         @app.call(request_env).on_complete do |response_env|
           # key might have changed in other middleware
-          key = cache_key(response_env)
+          key = cache_key(response_env[:url], request_env[:request_headers])
           add_cached_payload(response_env, key)
           cache_response(response_env, key)
           self.class.inc_request_count
@@ -144,7 +144,7 @@ class ShafClient
 
       def add_etag(env, key = nil)
         return unless %i[get head].include? env[:method]
-        key ||= cache_key(env)
+        key ||= cache_key(env[:url], env[:request_headers])
         etag = self.class.get_etag(key: key)
         env[:request_headers]['If-None-Match'] = etag if etag
       end
@@ -167,8 +167,8 @@ class ShafClient
         )
       end
 
-      def cache_key(env)
-        :"#{env[:url]}.#{env[:request_headers][auth_header]}"
+      def cache_key(url, request_headers)
+        :"#{url}.#{request_headers&.dig(auth_header)}"
       end
 
       def auth_header
