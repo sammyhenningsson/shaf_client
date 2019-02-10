@@ -12,7 +12,7 @@ class ShafClient
       end
     end
 
-    def initialize(href:, templated: nil)
+    def initialize(href:, templated: false)
       @href = href
       @templated = !!templated
     end
@@ -24,7 +24,7 @@ class ShafClient
     end
 
     def resolve_templated(**args)
-      return unless templated?
+      return href unless templated?
 
       args.inject(href) do |uri, (key, value)|
         value = value.to_s.sub(/.+:/, '')
