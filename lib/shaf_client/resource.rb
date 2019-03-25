@@ -5,7 +5,32 @@ class ShafClient
   class Resource < BaseResource
     attr_reader :http_status, :headers
 
-    def initialize(client, payload, status = nil, headers = nil)
+    class ResourceClasses
+      class << self
+        def all
+          @all ||= Hash.new(Resource)
+        end
+
+        def for(name)
+          all[name]
+        end
+
+        def set(name, clazz)
+          all[name] = clazz
+        end
+      end
+    end
+
+    def self.profile(name)
+      ResourceClasses.set(name, self)
+    end
+
+    def self.build(client, payload, status = nil, headers = {})
+      profile = headers.fetch('content-type', '')[/profile=([\w-]+)/, 1]
+      ResourceClasses.for(profile).new(client, payload, status, headers)
+    end
+
+    def initialize(client, payload, status = nil, headers = {})
       @client = client
       @http_status = status
       @headers = headers
@@ -15,8 +40,7 @@ class ShafClient
     %i[get put post delete patch get_form].each do |method|
       define_method(method) do |rel, payload = nil, **options|
         href = link(rel).href
-        args = [method, href]
-        client.send(*args, payload: payload, **options)
+        client.send(method, href, payload: payload, **options)
       end
     end
 

@@ -47,7 +47,7 @@ class ShafClient
         payload: payload,
         opts: options
       )
-      Resource.new(self, response.body, response.status, response.headers)
+      Resource.build(self, response.body, response.status, response.headers)
     end
   end
 

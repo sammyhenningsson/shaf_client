@@ -4,6 +4,8 @@ require 'shaf_client/link'
 class ShafClient
   class Form < Resource
 
+    profile 'shaf-form'
+
     def values
       return @values if defined? @values
 

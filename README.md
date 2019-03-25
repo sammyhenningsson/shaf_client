@@ -53,7 +53,7 @@ posts.actions               # => [:self, :up, :"doc:create-form"]
 posts.embedded_resources    # => {:posts=>[#<ShafClient::BaseResource:0x00005615723cad10 @payload…
 posts.embedded(:posts)      # Returns an array of `ShafClient::BaseResource` instances
 
-form = posts.get("doc:create-form")
+form = posts.get("doc:create-form") # this assumes that Content-Type contains the profile 'shaf-form'. Otherwise use `#get_form`.
 form.values                 # => {:title=>nil, :message=>nil}
 form[:title] = "hello"
 form[:message] = "world"
