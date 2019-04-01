@@ -18,9 +18,11 @@ class ShafClient
     end
 
     def to_h
-      attributes
-        .merge(_links: transform_values_to_s(links))
-        .merge(_embedded: transform_values_to_s(embedded_resources))
+      attributes.dup.tap do |hash|
+        hash[:_links] = transform_values_to_s(links)
+        embedded = transform_values_to_s(embedded_resources)
+        hash[:_embedded] = embedded unless embedded.empty?
+      end
     end
 
     def to_s
