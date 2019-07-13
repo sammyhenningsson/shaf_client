@@ -107,12 +107,10 @@ class ShafClient
           return if size < threshold
 
           count = 500
-          cache.each do |key, _value|
-            break if count <= 0
-            cache[key] = nil
+          cache.delete_if do
+            break if count.zero?
             count -= 1
           end
-          cache.compact!
         end
       end
 
