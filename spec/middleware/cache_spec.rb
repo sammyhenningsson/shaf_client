@@ -2,20 +2,31 @@ require 'spec_helper'
 
 class ShafClient
   module Middleware
+    module CacheSpec
+      class MockResponse
+        def initialize(response_env)
+          @response_env = response_env
+        end
+
+        def on_complete
+          yield @response_env
+        end
+      end
+
+      class MockApp
+        def initialize(response_env)
+          @response = MockResponse.new(response_env)
+        end
+
+        def call(_request_env)
+          @response
+        end
+      end
+    end
+
     describe Cache do
       let(:app_class) do
         Class.new do
-          def initialize(response_env)
-            @response_env = response_env
-          end
-
-          def call(_request_env)
-            self
-          end
-
-          def on_complete
-            yield @response_env
-          end
         end
       end
 
@@ -38,7 +49,7 @@ class ShafClient
           }
         }
       end
-      let(:app) { app_class.new(response_env) }
+      let(:app) { CacheSpec::MockApp.new(response_env) }
       let(:middleware) { Cache.new(app) }
       let(:url) { '/foo/bar' }
       let(:key) { :"#{url}." }
@@ -63,7 +74,7 @@ class ShafClient
         Cache.size.must_equal 0
       end
 
-      it 'adds If-None-Match header to request when previous etag found' do
+      it 'adds If-None-Match header to request when previous etag is found' do
         Cache.store(
           key: key,
           payload: 'none',
