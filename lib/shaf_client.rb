@@ -10,19 +10,19 @@ require 'shaf_client/form'
 class ShafClient
   extend Middleware::Cache::Control
 
+  class Error < StandardError; end
+
   MIME_TYPE_JSON = 'application/json'
+  MIME_TYPE_HAL  = 'application/hal+json'
+  DEFAULT_ADAPTER = :net_http
 
   def initialize(root_uri, **options)
     @root_uri = root_uri.dup
-    adapter = options.fetch(:faraday_adapter, :net_http)
-    setup options
+    @options = options
 
-    @client = Faraday.new(url: root_uri) do |conn|
-      conn.basic_auth(@user, @pass) if basic_auth?
-      conn.use Middleware::Cache, auth_header: auth_header
-      conn.use Middleware::Redirect
-      conn.adapter adapter
-    end
+    setup_default_headers
+    setup_basic_auth
+    setup_client
   end
 
   def get_root(**options)
@@ -51,18 +51,19 @@ class ShafClient
     end
   end
 
-  private
-
-  attr_reader :auth_header
-
-  def setup(options)
-    setup_default_headers options
-    setup_basic_auth options
+  def stubs
+    return unless @adapter == :test
+    @stubs ||= Faraday::Adapter::Test::Stubs.new
   end
 
-  def setup_default_headers(options)
+  private
+
+  attr_reader :options, :auth_header
+
+  def setup_default_headers
     @default_headers = {
-      'Content-Type' => options.fetch(:content_type, MIME_TYPE_JSON)
+      'Content-Type' => options.fetch(:content_type, MIME_TYPE_JSON),
+      'Accept' => options.fetch(:accept, MIME_TYPE_HAL)
     }
     return unless token = options[:auth_token]
 
@@ -70,13 +71,30 @@ class ShafClient
     @default_headers[@auth_header] = token
   end
 
-  def setup_basic_auth(options)
+  def setup_basic_auth
     @user, @pass = options.slice(:user, :password).values
     @auth_header = options.fetch(:auth_header, 'Authorization') if basic_auth?
   end
 
   def basic_auth?
     @user && @pass
+  end
+
+  def setup_client
+    @adapter = options.fetch(:faraday_adapter, DEFAULT_ADAPTER)
+
+    @client = Faraday.new(url: @root_uri) do |conn|
+      conn.basic_auth(@user, @pass) if basic_auth?
+      conn.use Middleware::Cache, auth_header: auth_header
+      conn.use Middleware::Redirect
+      connect_adapter(conn)
+    end
+  end
+
+  def connect_adapter(connection)
+    args = [@adapter]
+    args << stubs if @adapter == :test
+    connection.adapter(*args)
   end
 
   def request(method:, uri:, payload: nil, opts: {})
@@ -89,5 +107,7 @@ class ShafClient
       req.body = payload if payload
       req.headers.merge! headers
     end
+  rescue StandardError => e
+    raise Error, e.message
   end
 end
