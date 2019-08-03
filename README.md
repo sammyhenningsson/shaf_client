@@ -85,7 +85,7 @@ client = ShafClient.new('https://my.hal_api.com/', faraday_adapter: :net_http_pe
 ```
 
 # HTTP cache
-ShafClient supports HTTP caching. This means that if the server returns responses with the header `Cache-Control` and/or `Etag`, those responses are cached. If a request is made and there is a valid entry in the cache it is returned directly instead of reaching out to the server. If there is an expired entry with an etag in the cache and a new request is made for the corresponding resources then a `If-None-Match` header is added with that etag. If the server then responds with 304 Not Modified, then the cached payload is returned.  
+ShafClient supports HTTP caching. This means that if the server returns responses with the header `Cache-Control` and/or `Etag`, those responses are cached. If a request is made and there is a valid entry in the cache it is returned directly instead of reaching out to the server. If there is an expired entry with an etag in the cache and a new request is made for the corresponding resources then the `If-None-Match` header is added with that etag. If the server then responds with 304 Not Modified, the cached payload is returned.  
 
 # Redirects
 ShafClient will automatically follow redirects.  

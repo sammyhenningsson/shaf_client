@@ -2,14 +2,12 @@
 
 require 'faraday'
 require 'json'
-require 'shaf_client/middleware/cache'
+require 'shaf_client/middleware/http_cache'
 require 'shaf_client/middleware/redirect'
 require 'shaf_client/resource'
 require 'shaf_client/form'
 
 class ShafClient
-  extend Middleware::Cache::Control
-
   class Error < StandardError; end
 
   MIME_TYPE_JSON = 'application/json'
@@ -85,7 +83,7 @@ class ShafClient
 
     @client = Faraday.new(url: @root_uri) do |conn|
       conn.basic_auth(@user, @pass) if basic_auth?
-      conn.use Middleware::Cache, auth_header: auth_header
+      conn.use Middleware::HttpCache, auth_header: auth_header
       conn.use Middleware::Redirect
       connect_adapter(conn)
     end
