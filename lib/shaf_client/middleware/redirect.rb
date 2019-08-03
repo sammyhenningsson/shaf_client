@@ -8,14 +8,14 @@ class ShafClient
         @app = app
       end
 
-      def call(request_env)
-        @app.call(request_env).on_complete do |response_env|
-          status = response_env[:status]
-          location = response_env[:response_headers]['Location']
+      def call(env)
+        @app.call(env).on_complete do
+          status = env[:status]
+          location = env[:response_headers]['Location']
           next unless redirect? status
           next unless location
-          update_env(request_env, status, location)
-          @app.call(request_env)
+          update_env(env, status, location)
+          @app.call(env)
         end
       end
 
@@ -23,12 +23,12 @@ class ShafClient
         [301, 302, 303, 307, 308].include? status
       end
 
-      def update_env(request_env, status, location)
+      def update_env(env, status, location)
         if status == 303
-          request_env[:method] = :get
-          request_env[:body] = nil
+          env[:method] = :get
+          env[:body] = nil
         end
-        request_env[:url] = URI(location)
+        env[:url] = URI(location)
       end
     end
   end
