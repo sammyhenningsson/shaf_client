@@ -5,7 +5,7 @@ class ShafClient
   class Resource < BaseResource
     attr_reader :http_status, :headers
 
-    class ResourceClasses
+    class ResourceMapper
       class << self
         def all
           @all ||= Hash.new(Resource)
@@ -22,12 +22,12 @@ class ShafClient
     end
 
     def self.profile(name)
-      ResourceClasses.set(name, self)
+      ResourceMapper.set(name, self)
     end
 
     def self.build(client, payload, status = nil, headers = {})
-      profile = headers.fetch('content-type', '')[/profile=([\w-]+)/, 1]
-      ResourceClasses.for(profile).new(client, payload, status, headers)
+      profile = headers.fetch('content-type', '')[/profile=([\w-]+)\b/, 1]
+      ResourceMapper.for(profile).new(client, payload, status, headers)
     end
 
     def initialize(client, payload, status = nil, headers = {})
