@@ -30,14 +30,18 @@ class ShafClient
       attribute(:method).downcase.to_sym
     end
 
-    # def validate; end
-
     def submit
       client.send(http_method, target, payload: @values)
     end
 
     def reload!
       self << get(:self, skip_cache: true)
+    end
+
+    def valid?
+      attribute(:fields).all? do |field|
+        valid_field? field
+      end
     end
 
     protected
@@ -48,6 +52,35 @@ class ShafClient
         @values[key] = value.dup
       end
       super
+    end
+
+    def valid_field?(field)
+      key = field['name'].to_sym
+      return false unless validate_required(field, key)
+      return false unless validate_number(field, key)
+      return false unless validate_string(field, key)
+      true
+    end
+
+    private
+
+    def validate_required(field, key)
+      return true unless field['required']
+      return false if values[key].nil?
+      return false if values[key].respond_to?(:empty) && values[key].empty?
+      true
+    end
+
+    def validate_string(field, key)
+      return true unless %w[string text].include? field.fetch('type', '').downcase
+      return false if values[key]&.is_a?(Numeric)
+      true
+    end
+
+    def validate_number(field, key)
+      return true unless %w[int integer number].include? field.fetch('type', '').downcase
+      return false if values[key]&.is_a?(Numeric)
+      true
     end
   end
 end
