@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'shaf_client/middleware/http_cache/mock_entry'
 
 class ShafClient
   module Middleware
     class HttpCache
       describe Base do
         let(:cache) { InMemory.new }
+
+        def entry(key)
+          Entry.new(key: key, payload: 'foobar', etag: 'gate')
+        end
 
         it 'can be initialized without args' do
           InMemory.new.wont_be_nil
@@ -20,7 +23,7 @@ class ShafClient
         describe '#purge' do
           before do
             25.times do |i|
-              cache.store(MockEntry.new(key: "key#{i}"))
+              cache.store(entry("key#{i}"))
             end
           end
 

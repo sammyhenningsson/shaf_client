@@ -1,4 +1,5 @@
 require 'shaf_client/middleware/http_cache/entry'
+require 'shaf_client/middleware/http_cache/key'
 
 class ShafClient
   module Middleware
@@ -51,8 +52,8 @@ class ShafClient
           end
         end
 
-        def load(entry)
-          entry = get(entry)
+        def load(query)
+          entry = get(query)
           return entry unless block_given?
           yield entry if entry
         end
@@ -62,11 +63,21 @@ class ShafClient
           put(entry)
         end
 
+        def update_expiration(entry, expire_at)
+          return unless expire_at
+
+          updated_entry = entry.dup
+          updated_entry.expire_at = expire_at
+          store(updated_entry)
+        end
+
         %i[size get put clear clear_invalid delete_if].each do |name|
           define_method(name) do
             raise NotImplementedError, "#{self.class} does not implement required method #{name}"
           end
         end
+
+        private :delete_if
       end
     end
   end

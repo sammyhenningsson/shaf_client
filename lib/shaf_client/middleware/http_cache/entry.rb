@@ -1,28 +1,27 @@
 # frozen_string_literal: true
 
+require 'shaf_client/middleware/http_cache/key'
+
 class ShafClient
   module Middleware
     class HttpCache
       class Entry
-        attr_reader :key, :payload, :etag
+        extend Key
+
+        attr_reader :key, :payload, :etag, :vary
         attr_accessor :expire_at
 
         class << self
           def from(env)
             response_headers = response_headers(env)
+
             new(
               key: key(env.fetch(:url)),
               payload: env[:body],
               etag: response_headers[:etag],
               expire_at: expire_at(response_headers),
-              vary: vary(response_headers)
+              vary: vary(env)
             )
-          end
-
-          def key(uri)
-            uri = URI(uri) if uri.is_a? String
-            query = (uri.query || '').split('&').sort.join('&')
-            [uri.host, uri.path, query].join('_').to_sym
           end
 
           private
@@ -33,12 +32,11 @@ class ShafClient
             response_headers.transform_keys { |k| k.downcase.to_sym }
           end
 
-          # def request_headers(env)
-          #   request_headers = env.request_headers
-          #   request_headers ||= env.request_headers
-          #   request_headers ||= {}
-          #   request_headers.transform_keys { |k| k.downcase.to_sym }
-          # end
+          def request_headers(env)
+            request_headers = env.request_headers
+            request_headers ||= {}
+            request_headers.transform_keys { |k| k.downcase.to_sym }
+          end
 
           def expire_at(headers)
             cache_control = headers[:'cache-control']
@@ -48,11 +46,13 @@ class ShafClient
             Time.now + max_age.to_i if max_age
           end
 
-          def vary(headers)
-            keys = headers.fetch(:vary, '').split(',')
+          def vary(env)
+            response_headers = response_headers(env)
+            request_headers  = request_headers(env)
+            keys = response_headers.fetch(:vary, '').split(',')
             keys.each_with_object({}) do |key, vary|
               key = key.strip.downcase.to_sym
-              vary[key] = headers[key]
+              vary[key] = request_headers[key]
             end
           end
         end

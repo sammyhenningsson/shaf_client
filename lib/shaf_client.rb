@@ -83,10 +83,14 @@ class ShafClient
 
     @client = Faraday.new(url: @root_uri) do |conn|
       conn.basic_auth(@user, @pass) if basic_auth?
-      conn.use Middleware::HttpCache, auth_header: auth_header
+      conn.use Middleware::HttpCache, cache_options
       conn.use Middleware::Redirect
       connect_adapter(conn)
     end
+  end
+
+  def cache_options
+    options.merge(auth_header: auth_header)
   end
 
   def connect_adapter(connection)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'shaf_client/middleware/http_cache/in_memory'
+require 'shaf_client/middleware/http_cache/query'
 require 'shaf_client/middleware/http_cache/accessor'
 
 class ShafClient
@@ -17,17 +18,19 @@ class ShafClient
 
       def call(env)
         skip_cache = env[:request_headers].delete :skip_cache
+        cached_entry = nil
 
         if cacheable?(env)
-          entry = Entry.from(env)
-          cache.load(entry) do |cached|
+          query = Query.from(env)
+          cache.load(query) do |cached|
             return cached_response(cached) if cached.valid? && !skip_cache
             add_etag(env, cached.etag)
+            cached_entry = cached
           end
         end
 
         @app.call(env).on_complete do
-          handle_not_modified(env)
+          handle_not_modified(env, cached_entry)
           update_cache(env)
         end
       end
@@ -53,29 +56,20 @@ class ShafClient
         env[:request_headers]['If-None-Match'] = etag if etag
       end
 
-      def handle_not_modified(env)
+      def handle_not_modified(env, cached_entry)
         return unless env[:status] == 304
 
-        entry = Entry.from(env)
-        cache.load(entry) do |cached|
-          env[:body] = cached.payload
-          update_expiration(cached, entry.expire_at)
-        end
-      end
+        env[:body] = cached_entry.payload
 
-      def update_expiration(entry, expire_at)
-        return unless expire_at
-
-        updated_entry = entry.dup
-        updated_entry.expire_at = expire_at
-        cache.store(updated_entry)
+        expire_at = Entry.from(env).expire_at
+        cache.update_expiration(cached_entry, expire_at)
       end
 
       def update_cache(env)
-        cache_response(env) if storable? env
-        invalidate_cache(env) if invalidate? env
-
         cache.inc_request_count
+        return unless storable? env
+
+        cache.store Entry.from(env)
       end
 
       def storable?(env)
@@ -92,19 +86,6 @@ class ShafClient
       def max_age?(env)
         cache_control = env[:response_headers].fetch('Cache-Control', '')
         cache_control =~ /\bmax-age=\d+/
-      end
-
-      def cache_response(env)
-        entry = Entry.from(env)
-        cache.store(entry)
-      end
-
-      def invalidate?(env)
-        # FIXME !!!
-      end
-
-      def invalidate_cache(env)
-        # FIXME !!!
       end
     end
   end
