@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'shaf_client/middleware/http_cache/in_memory'
+require 'shaf_client/middleware/http_cache/file_storage'
 require 'shaf_client/middleware/http_cache/query'
 require 'shaf_client/middleware/http_cache/accessor'
 
@@ -67,25 +68,25 @@ class ShafClient
 
       def update_cache(env)
         cache.inc_request_count
-        return unless storable? env
+        entry = Entry.from(env)
+        return unless storable?(env: env, entry: entry)
 
-        cache.store Entry.from(env)
+        cache.store entry
       end
 
-      def storable?(env)
+      def storable?(env:, entry:)
         return false unless %i[get put].include? env[:method]
         return false unless env[:status] != 204
         return false unless (200..299).cover? env[:status]
-        etag?(env) || max_age?(env)
-      end
+        return false unless entry.etag || entry.expire_at
 
-      def etag?(env)
-        env[:response_headers].key? 'Etag'
-      end
-
-      def max_age?(env)
-        cache_control = env[:response_headers].fetch('Cache-Control', '')
-        cache_control =~ /\bmax-age=\d+/
+        request_headers = env.request_headers.transform_keys { |k| k.downcase.to_sym }
+        entry.vary.keys.all? do |key|
+          # The respose that we see is already decoded (e.g. gunzipped) so we shouldn't need
+          # to care about the Accept-Encoding header
+          next true if key == :'accept-encoding'
+          request_headers.include? key
+        end
       end
     end
   end

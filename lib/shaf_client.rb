@@ -90,7 +90,10 @@ class ShafClient
   end
 
   def cache_options
-    options.merge(auth_header: auth_header)
+    options.merge(
+      accessed_by: self,
+      auth_header: auth_header
+    )
   end
 
   def connect_adapter(connection)

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'time'
 require 'shaf_client/middleware/http_cache/key'
 
 class ShafClient
@@ -58,6 +59,7 @@ class ShafClient
         end
 
         def initialize(key:, payload: nil, etag: nil, expire_at: nil, vary: {})
+          expire_at = Time.parse(expire_at) if expire_at.is_a? String
           @key = key.freeze
           @payload = payload.freeze
           @etag = etag.freeze
@@ -77,6 +79,10 @@ class ShafClient
         def valid?
           return false unless payload?
           fresh?
+        end
+
+        def invalid?
+          !valid?
         end
 
         def payload?

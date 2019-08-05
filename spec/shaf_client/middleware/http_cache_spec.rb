@@ -50,6 +50,18 @@ class ShafClient
         accessor.cache_size.must_equal 0
       end
 
+      it 'saves response when Vary specifies header that we requested' do
+        stubs.get(url) { [200, response_headers.merge('vary' => 'Foobar'), 'hello'] }
+        client.get(url, nil, 'Foobar' => 'baz')
+        accessor.cache_size.must_equal 1
+      end
+
+      it 'does not save response when Vary specifies header that we did not send' do
+        stubs.get(url) { [200, response_headers.merge('vary' => 'Foobar'), 'hello'] }
+        client.get url
+        accessor.cache_size.must_equal 0
+      end
+
       it 'adds If-None-Match header to request when previous etag is found' do
         checksum = nil
         stubs.get(url) do |env|
