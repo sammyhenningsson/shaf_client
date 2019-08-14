@@ -34,7 +34,6 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#post(rel, payload: nil)`       - Performs a POST request to the href of the link with rel _rel_
  - `#delete(rel, payload: nil)`     - Performs a DELETE request to the href of the link with rel _rel_
  - `#patch(rel, payload: nil)`      - Performs a PATCH request to the href of the link with rel _rel_
- - `#get_form(rel)`                 - Like `get(rel)` but returns a `ShafClient::Form`(Shaf specific)
  - `#get_doc(rel)`                  - Retrieves the documentation for a _rel_ by looking up its curie
  - `#reload!`                       - Refresh itself by fetching the _self_ link (by-passing cache)
  - `#http_status`                   - The response HTTP status returned by the server
@@ -53,7 +52,7 @@ posts.actions               # => [:self, :up, :"doc:create-form"]
 posts.embedded_resources    # => {:posts=>[#<ShafClient::BaseResource:0x00005615723cad10 @payload…
 posts.embedded(:posts)      # Returns an array of `ShafClient::BaseResource` instances
 
-form = posts.get("doc:create-form") # this assumes that Content-Type contains the profile 'shaf-form'. Otherwise use `#get_form`.
+form = posts.get("doc:create-form") # this assumes that Content-Type contains the profile 'shaf-form'.
 form.values                 # => {:title=>nil, :message=>nil}
 form[:title] = "hello"
 form[:message] = "world"

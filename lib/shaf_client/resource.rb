@@ -37,7 +37,7 @@ class ShafClient
       super(payload)
     end
 
-    %i[get put post delete patch get_form].each do |method|
+    %i[get put post delete patch].each do |method|
       define_method(method) do |rel, payload = nil, **options|
         href = link(rel).href
         client.send(method, href, payload: payload, **options)

@@ -27,11 +27,6 @@ class ShafClient
     get(@root_uri, **options)
   end
 
-  def get_form(uri, **options)
-    response = request(method: :get, uri: uri, opts: options)
-    Form.new(self, response.body, response.status, response.headers)
-  end
-
   def get_doc(uri, **options)
     response = request(method: :get, uri: uri, opts: options)
     response&.body || ''

@@ -37,7 +37,7 @@ class ShafClient
     end
 
     def reload!
-      self << get_form(:self, skip_cache: true)
+      self << get(:self, skip_cache: true)
     end
 
     protected

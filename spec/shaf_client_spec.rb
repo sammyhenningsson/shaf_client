@@ -29,7 +29,7 @@ describe ShafClient do
     response.message.must_equal 'hello'
   end
 
-  it '#get_form returns a Form' do
+  it 'returns a Form' do
     response_headers = {'Content-Type' => 'application/hal+json;profile=shaf-form'}
 
     stub_response(uri: '/form', headers: response_headers, payload: <<~JSON)
