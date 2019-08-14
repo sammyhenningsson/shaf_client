@@ -30,19 +30,27 @@ class ShafClient
     end
 
     def attribute(key)
+      raise Error, "No attribute for key: #{key}" unless attributes.key? key
       attributes.fetch(key.to_sym)
     end
 
     def link(rel)
-      links.fetch(rel.to_sym)
+      rewritten_rel = best_match(links.keys, rel)
+      raise Error, "No link with rel: #{rel}" unless links.key? rewritten_rel
+      links[rewritten_rel]
     end
 
     def curie(rel)
-      curies.fetch(rel.to_sym)
+      raise Error, "No curie with rel: #{rel}" unless curies.key? rel.to_sym
+      curies[rel.to_sym]
     end
 
     def embedded(rel)
-      embedded_resources.fetch(rel.to_sym)
+      rewritten_rel = best_match(embedded_resources.keys, rel)
+      unless embedded_resources.key? rewritten_rel
+        raise Error, "No embedded resources with rel: #{rel}"
+      end
+      embedded_resources[rewritten_rel]
     end
 
     def [](key)
@@ -115,6 +123,19 @@ class ShafClient
     def respond_to_missing?(method_name, include_private = false)
       return true if attributes.key?(method_name)
       super
+    end
+
+    def best_match(rels, rel)
+      rel = rel.to_sym
+      return rel if rels.include? rel
+
+      unless rel.to_s.include? ':'
+        matches = rels.grep(/[^:]*:#{rel}/)
+        return matches.first if matches.size == 1
+        raise Error, "Ambiguous rel: #{rel}. (#{matches})" if matches.size > 1
+      end
+
+      best_match(rels, rel.to_s.tr('_', '-')) if rel.to_s.include? '_'
     end
 
     def transform_values_to_s(hash)
