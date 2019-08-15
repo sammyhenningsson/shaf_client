@@ -9,7 +9,7 @@ class ShafClient
       class Entry
         extend Key
 
-        attr_reader :key, :payload, :etag, :vary
+        attr_reader :key, :payload, :etag, :vary, :response_headers
         attr_accessor :expire_at
 
         class << self
@@ -21,7 +21,8 @@ class ShafClient
               payload: env[:body],
               etag: response_headers[:etag],
               expire_at: expire_at(response_headers),
-              vary: vary(env)
+              vary: vary(env),
+              response_headers: response_headers
             )
           end
 
@@ -58,13 +59,14 @@ class ShafClient
           end
         end
 
-        def initialize(key:, payload: nil, etag: nil, expire_at: nil, vary: {})
+        def initialize(key:, payload: nil, etag: nil, expire_at: nil, vary: {}, response_headers: {})
           expire_at = Time.parse(expire_at) if expire_at.is_a? String
           @key = key.freeze
           @payload = payload.freeze
           @etag = etag.freeze
           @expire_at = expire_at.freeze
           @vary = vary.freeze
+          @response_headers = response_headers
           freeze
         end
 

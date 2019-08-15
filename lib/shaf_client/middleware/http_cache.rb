@@ -50,7 +50,8 @@ class ShafClient
       end
 
       def cached_response(entry)
-        Response.new(body: entry.payload, headers: {})
+        cached_headers = entry.response_headers.transform_keys(&:to_s)
+        Response.new(body: entry.payload, headers: cached_headers)
       end
 
       def add_etag(env, etag)
@@ -60,7 +61,9 @@ class ShafClient
       def handle_not_modified(env, cached_entry)
         return unless env[:status] == 304
 
+        cached_headers = cached_entry.response_headers.transform_keys(&:to_s)
         env[:body] = cached_entry.payload
+        env[:response_headers] = cached_headers.merge(env[:response_headers])
 
         expire_at = Entry.from(env).expire_at
         cache.update_expiration(cached_entry, expire_at)

@@ -23,13 +23,29 @@ class ShafClient
               expire_at: entry.expire_at,
               vary: entry.vary,
               payload: entry.payload,
-              filepath: filepath
+              filepath: filepath,
+              response_headers: entry.response_headers
             )
           end
 
-          def initialize(key:, filepath:, payload: nil, etag: nil, expire_at: nil, vary: {})
+          def initialize(
+            key:,
+            filepath:,
+            payload: nil,
+            etag: nil,
+            expire_at: nil,
+            vary: {},
+            response_headers: {}
+          )
             @filepath = filepath
-            super(key: key, payload: payload, etag: etag, expire_at: expire_at, vary: vary)
+            super(
+              key: key,
+              payload: payload,
+              etag: etag,
+              expire_at: expire_at,
+              vary: vary,
+              response_headers: response_headers
+            )
           end
 
           def serialize
@@ -39,6 +55,7 @@ class ShafClient
               expire_at: expire_at,
               vary: vary,
               filepath: filepath,
+              response_headers: response_headers,
               payload: payload
             )
           end
@@ -70,8 +87,8 @@ class ShafClient
         end
 
         def put(entry)
-          exiting = find(Query.from(entry))
-          unlink(exiting) if exiting
+          existing = find(Query.from(entry))
+          unlink(existing) if existing
           write(entry)
         end
 
