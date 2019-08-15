@@ -54,6 +54,9 @@ class ShafClient
             keys = response_headers.fetch(:vary, '').split(',')
             keys.each_with_object({}) do |key, vary|
               key = key.strip.downcase.to_sym
+              # The respose that we see is already decoded (e.g. gunzipped) so
+              # we shouldn't need to care about the Accept-Encoding header
+              next if key == :'accept-encoding'
               vary[key] = request_headers[key]
             end
           end

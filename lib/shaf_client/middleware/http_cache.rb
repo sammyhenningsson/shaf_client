@@ -85,9 +85,6 @@ class ShafClient
 
         request_headers = env.request_headers.transform_keys { |k| k.downcase.to_sym }
         entry.vary.keys.all? do |key|
-          # The respose that we see is already decoded (e.g. gunzipped) so we shouldn't need
-          # to care about the Accept-Encoding header
-          next true if key == :'accept-encoding'
           request_headers.include? key
         end
       end

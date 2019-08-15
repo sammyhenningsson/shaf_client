@@ -31,7 +31,6 @@ class ShafClient
 
         def match?(vary)
           vary.all? do |key, value|
-            next true if key == :'accept-encoding'
             headers[key] == value
           end
         end
