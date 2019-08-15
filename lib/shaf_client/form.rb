@@ -34,10 +34,6 @@ class ShafClient
       client.send(http_method, target, payload: @values)
     end
 
-    def reload!
-      self << get(:self, skip_cache: true)
-    end
-
     def valid?
       attribute(:fields).all? do |field|
         valid_field? field
@@ -57,6 +53,7 @@ class ShafClient
     def valid_field?(field)
       key = field['name'].to_sym
       return false unless validate_required(field, key)
+      return true  if values[key].nil?
       return false unless validate_number(field, key)
       return false unless validate_string(field, key)
       true
@@ -73,14 +70,12 @@ class ShafClient
 
     def validate_string(field, key)
       return true unless %w[string text].include? field.fetch('type', '').downcase
-      return false if values[key]&.is_a?(Numeric)
-      true
+      values[key].is_a? String
     end
 
     def validate_number(field, key)
       return true unless %w[int integer number].include? field.fetch('type', '').downcase
-      return false if values[key]&.is_a?(Numeric)
-      true
+      values.fetch(key, 0).is_a? Numeric
     end
   end
 end
