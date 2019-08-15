@@ -46,6 +46,7 @@ require 'shaf_client'
 client = ShafClient.new('http://localhost:3000')
 root = client.get_root
 root.actions                # => [:self, :posts, :comments]
+root.headers                # => {"content-type"=>"application/hal+json", "cache-control"=>"private, max-age=20"…
 
 posts = root.get(:posts)
 posts.actions               # => [:self, :up, :"doc:create-form"]
@@ -86,6 +87,10 @@ client = ShafClient.new('https://my.hal_api.com/', faraday_adapter: :net_http_pe
 
 # HTTP cache
 ShafClient supports HTTP caching. This means that if the server returns responses with the header `Cache-Control` and/or `Etag`, those responses are cached. If a request is made and there is a valid entry in the cache it is returned directly instead of reaching out to the server. If there is an expired entry with an etag in the cache and a new request is made for the corresponding resources then the `If-None-Match` header is added with that etag. If the server then responds with 304 Not Modified, the cached payload is returned.  
+ShafClient supports two types of caches `InMemory` (which is the default) and `FileStorage`. Use the option `cache_class` to specify the one to be used. Like:
+```ruby
+client = ShafClient.new('https://my.hal_api.com/', cache_class: ShafClient::Middleware::HttpCache::FileStorage)
+```
 
 # Redirects
 ShafClient will automatically follow redirects.  
