@@ -99,7 +99,7 @@ class ShafClient
 
   def request(method:, uri:, payload: nil, opts: {})
     payload = JSON.generate(payload) if payload&.is_a?(Hash)
-    headers = @default_headers.merge(opts.fetch(:headers, {}))
+    headers = default_headers(method).merge(opts.fetch(:headers, {}))
     headers[:skip_cache] = true if opts[:skip_cache]
 
     @client.send(method) do |req|
@@ -109,5 +109,11 @@ class ShafClient
     end
   rescue StandardError => e
     raise Error, e.message
+  end
+
+  def default_headers(http_method)
+    headers = @default_headers.dup
+    headers.delete('Content-Type') unless %i[put patch post].include? http_method
+    headers
   end
 end
