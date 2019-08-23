@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'faraday-http-cache'
 require 'json'
-require 'shaf_client/middleware/http_cache'
 require 'shaf_client/middleware/redirect'
 require 'shaf_client/resource'
 require 'shaf_client/form'
@@ -75,20 +75,20 @@ class ShafClient
 
   def setup_client
     @adapter = options.fetch(:faraday_adapter, DEFAULT_ADAPTER)
+    cache_params = faraday_cache_params(options)
 
     @client = Faraday.new(url: @root_uri) do |conn|
       conn.basic_auth(@user, @pass) if basic_auth?
-      conn.use Middleware::HttpCache, cache_options
       conn.use Middleware::Redirect
+      conn.use Faraday::HttpCache, **cache_params
       connect_adapter(conn)
     end
   end
 
-  def cache_options
-    options.merge(
-      accessed_by: self,
-      auth_header: auth_header
-    )
+  def faraday_cache_params(options)
+    options.fetch(:faraday_http_cache, shared_cache: false).tap do |cache_params|
+      cache_params[:store] ||= options[:http_cache_store] if options[:http_cache_store]
+    end
   end
 
   def connect_adapter(connection)
@@ -100,7 +100,6 @@ class ShafClient
   def request(method:, uri:, payload: nil, opts: {})
     payload = JSON.generate(payload) if payload&.is_a?(Hash)
     headers = default_headers(method).merge(opts.fetch(:headers, {}))
-    headers[:skip_cache] = true if opts[:skip_cache]
 
     @client.send(method) do |req|
       req.url uri

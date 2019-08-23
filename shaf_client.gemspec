@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name        = 'shaf_client'
-  gem.version     = '0.4.0'
+  gem.version     = '0.5.0'
   gem.summary     = "HAL client for Shaf"
   gem.description = "A HAL client customized for Shaf APIs"
   gem.authors     = ["Sammy Henningsson"]
@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 2.5'
   gem.add_runtime_dependency "faraday", '~> 0.15'
+  gem.add_runtime_dependency "faraday-http-cache", '~> 2.0'
   gem.add_development_dependency "rake", '~> 12.0'
   gem.add_development_dependency "minitest", '~> 5', '>= 5.10'
 end

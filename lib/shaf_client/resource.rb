@@ -59,7 +59,7 @@ class ShafClient
     end
 
     def reload!
-      self << get(:self, skip_cache: true)
+      self << get(:self, headers: {'Cache-Control': 'no-cache'})
     end
 
     protected

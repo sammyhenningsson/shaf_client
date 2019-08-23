@@ -54,8 +54,10 @@ posts.embedded_resources    # => {:posts=>[#<ShafClient::BaseResource:0x00005615
 posts.embedded(:posts)      # Returns an array of `ShafClient::BaseResource` instances
 
 form = posts.get("doc:create-form") # this assumes that Content-Type contains the profile 'shaf-form'.
-                                    # it's also possible to type: posts.get("create-form") or posts.get(:create_form) 
+                                    # it's also possible to type: posts.get("create-form") or posts.get(:create_form)
+form.class                  # => ShafClient::Form
 form.values                 # => {:title=>nil, :message=>nil}
+form.valid?                 # => false
 form[:title] = "hello"
 form[:message] = "world"
 created_post = form.submit  # Returns a new `ShafClient::Resource`
@@ -63,8 +65,57 @@ created_post = form.submit  # Returns a new `ShafClient::Resource`
 
 created_post.attributes     # => {:title=>"hello", :message=>"world"}
 created_post.actions        # => [:"doc:up", :self, :"doc:edit-form", :"doc:delete"]
+puts created_post.to_s      # => {
+                            #      "title": "hello",
+                            #      "message": "world",
+                            #      "user_id": 1,
+                            #      "_links": {
+                            #        "doc:up": {
+                            #          "href": "http://localhost:3000/posts",
+                            #          "title": "up"
+                            #        },
+                            #        "self": {
+                            #          "href": "http://localhost:3000/posts/1"
+                            #        },
+                            #        "doc:edit-form": {
+                            #          "href": "http://localhost:3000/posts/1/edit",
+                            #          "title": "edit"
+                            #        },
+                            #        "doc:delete": {
+                            #          "href": "http://localhost:3000/posts/1",
+                            #          "title": "delete"
+                            #        },
+                            #        "curies": [
+                            #          {
+                            #            "name": "doc",
+                            #            "href": "http://localhost:3000/doc/post/rels/{rel}",
+                            #            "templated": true
+                            #          }
+                            #        ]
+                            #      }
+                            #    }
+
 
 ```
+
+# Adding semantic meaning to resources
+Note the form in the example above. `form` is an instance of `ShafClient::Form` (which is a subclass of `ShafClient::Resource`).
+It has a few extra methods that makes it easy to fill in the form and submit it. The reason what we received an instance of `ShafClient::Form` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of thisrepresentation and luckily ShafClient knowns about this profile.  
+Adding support for other profiles is as simple as creating a subclass of `ShafClient::Resource` and call the class method `profile` with the name of your profile. So say that you have a server that returns a response with Content-Type: "application/hal+json;profile=foobar". Then you could do something like this:
+```ruby
+class CustomResource < ShafClient::Resource
+  profile 'foobar'
+
+  def attr_string
+    attributes.keys.join('_')
+  end
+end
+
+foobar = client.get_root.get(:some_rel_returning_foobar)
+foobar.class            # => CustomResource
+foobar.attr_string      # => "key1_key2_key3"
+```
+Note: This is only to serve as way to understand how this works :)
 
 # Authentication
 ShafClient supports basic auth and token based authentication.  
@@ -86,10 +137,12 @@ client = ShafClient.new('https://my.hal_api.com/', faraday_adapter: :net_http_pe
 ```
 
 # HTTP cache
-ShafClient supports HTTP caching. This means that if the server returns responses with the header `Cache-Control` and/or `Etag`, those responses are cached. If a request is made and there is a valid entry in the cache it is returned directly instead of reaching out to the server. If there is an expired entry with an etag in the cache and a new request is made for the corresponding resources then the `If-None-Match` header is added with that etag. If the server then responds with 304 Not Modified, the cached payload is returned.  
-ShafClient supports two types of caches `InMemory` (which is the default) and `FileStorage`. Use the option `cache_class` to specify the one to be used. Like:
+ShafClient supports HTTP caching by using the [faraday-http-cache](https://github.com/plataformatec/faraday-http-cache), Faraday middleware.
+This means that if the server returns responses with caching directives (e.g. `Cache-Control`, `Etag` etc), those responses are properly cached. And no unnecessary request will be made when a valid cache entry exist.
+To pass down options to faraday-http-cache (e.g a cache store) pass them to ShafClient as options under the `:faraday_http_cache` key.
 ```ruby
-client = ShafClient.new('https://my.hal_api.com/', cache_class: ShafClient::Middleware::HttpCache::FileStorage)
+store = ActiveSupport::Cache.lookup_store(:mem_cache_store, ['localhost:11211'])
+client = ShafClient.new('https://my.hal_api.com/', faraday_http_cache: {store: store})
 ```
 
 # Redirects
