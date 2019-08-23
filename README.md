@@ -100,8 +100,8 @@ puts created_post.to_s      # => {
 
 # Adding semantic meaning to resources
 Note the form in the example above. `form` is an instance of `ShafClient::Form` (which is a subclass of `ShafClient::Resource`).
-It has a few extra methods that makes it easy to fill in the form and submit it. The reason what we received an instance of `ShafClient::Form` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of thisrepresentation and luckily ShafClient knowns about this profile.  
-Adding support for other profiles is as simple as creating a subclass of `ShafClient::Resource` and call the class method `profile` with the name of your profile. So say that you have a server that returns a response with Content-Type: "application/hal+json;profile=foobar". Then you could do something like this:
+It has a few extra methods that makes it easy to fill in the form and submit it. The reason that we received an instance of `ShafClient::Form` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of this representation and luckily ShafClient knowns about this profile.  
+Adding support for other profiles is as simple as creating a subclass of `ShafClient::Resource` and call the class method `profile` with the name of your profile. So say that you have a server that returns a response with Content-Type: `application/hal+json;profile=foobar`. Then you could do something like this:
 ```ruby
 class CustomResource < ShafClient::Resource
   profile 'foobar'
@@ -115,7 +115,7 @@ foobar = client.get_root.get(:some_rel_returning_foobar)
 foobar.class            # => CustomResource
 foobar.attr_string      # => "key1_key2_key3"
 ```
-Note: This is only to serve as way to understand how this works :)
+Note: This only serves the purpose of understanding how this works :)
 
 # Authentication
 ShafClient supports basic auth and token based authentication.  
