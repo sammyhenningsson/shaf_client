@@ -40,7 +40,9 @@ class ShafClient
         payload: payload,
         opts: options
       )
-      Resource.build(self, response.body, response.status, response.headers)
+      status = response.status
+      response.headers['content-type'] = 'profile=__shaf_client_emtpy__' unless response.body
+      Resource.build(self, response.body, status, response.headers)
     end
   end
 
