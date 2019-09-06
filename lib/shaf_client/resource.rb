@@ -12,11 +12,11 @@ class ShafClient
         end
 
         def for(name)
-          all[name]
+          all[name&.to_sym]
         end
 
         def set(name, clazz)
-          all[name] = clazz
+          all[name.to_sym] = clazz
         end
       end
     end

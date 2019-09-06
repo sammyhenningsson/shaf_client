@@ -6,6 +6,8 @@ require 'json'
 require 'shaf_client/middleware/redirect'
 require 'shaf_client/resource'
 require 'shaf_client/form'
+require 'shaf_client/error'
+require 'shaf_client/empty_resource'
 
 class ShafClient
   class Error < StandardError; end
@@ -40,9 +42,11 @@ class ShafClient
         payload: payload,
         opts: options
       )
-      status = response.status
-      response.headers['content-type'] = 'profile=__shaf_client_emtpy__' unless response.body
-      Resource.build(self, response.body, status, response.headers)
+
+      body = String(response.body)
+      response.headers['content-type'] = 'profile=__shaf_client_emtpy__' if body.empty?
+
+      Resource.build(self, body, response.status, response.headers)
     end
   end
 

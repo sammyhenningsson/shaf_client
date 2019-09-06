@@ -15,6 +15,10 @@ class ShafClient
       @embedded_resources = {}.freeze
     end
 
+    def to_h
+      {}
+    end
+
     %i[get put post delete patch, get_doc, reload!].each do |method|
       define_method(method) do |*_args|
         raise "EmptyResource: #{method} not available"
