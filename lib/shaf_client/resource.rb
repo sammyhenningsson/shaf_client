@@ -62,6 +62,10 @@ class ShafClient
       self << get(:self, headers: {'Cache-Control': 'no-cache'})
     end
 
+    def destroy!
+      delete(:delete)
+    end
+
     protected
 
     def <<(other)
