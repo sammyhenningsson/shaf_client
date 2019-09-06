@@ -15,11 +15,11 @@ class ShafClient
     end
 
     def [](key)
-      values[key]
+      values[key.to_sym]
     end
 
     def []=(key, value)
-      values[key] = value
+      values[key.to_sym] = value
     end
 
     def target
