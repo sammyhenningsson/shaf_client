@@ -1,33 +1,24 @@
 require 'json'
+require 'shaf_client/resource_mapper'
 require 'shaf_client/base_resource'
 
 class ShafClient
   class Resource < BaseResource
     attr_reader :http_status, :headers
 
-    class ResourceMapper
-      class << self
-        def all
-          @all ||= Hash.new(Resource)
-        end
+    ResourceMapper.register("application/hal+json", self)
 
-        def for(name)
-          all[name&.to_sym]
-        end
-
-        def set(name, clazz)
-          all[name.to_sym] = clazz
-        end
-      end
+    def self.content_type(type)
+      ResourceMapper.register(type, self)
     end
 
     def self.profile(name)
-      ResourceMapper.set(name, self)
+      content_type "application/hal+json;profile=#{name}"
     end
 
     def self.build(client, payload, status = nil, headers = {})
-      profile = headers.fetch('content-type', '')[/profile=([\w-]+)\b/, 1]
-      ResourceMapper.for(profile).new(client, payload, status, headers)
+      content_type = headers.fetch('content-type', '')
+      ResourceMapper.for(content_type).new(client, payload, status, headers)
     end
 
     def initialize(client, payload, status = nil, headers = {})
@@ -44,7 +35,7 @@ class ShafClient
       end
     end
 
-    def get_doc(rel:)
+    def get_doc(rel)
       rel = rel.to_s
       curie_name, rel =
         if rel.include? ':'

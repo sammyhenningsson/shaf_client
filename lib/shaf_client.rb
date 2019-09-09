@@ -3,15 +3,15 @@
 require 'faraday'
 require 'faraday-http-cache'
 require 'json'
+require 'shaf_client/error'
 require 'shaf_client/middleware/redirect'
 require 'shaf_client/resource'
 require 'shaf_client/form'
-require 'shaf_client/error'
+require 'shaf_client/api_error'
 require 'shaf_client/empty_resource'
+require 'shaf_client/unknown_resource'
 
 class ShafClient
-  class Error < StandardError; end
-
   MIME_TYPE_JSON = 'application/json'
   MIME_TYPE_HAL  = 'application/hal+json'
   DEFAULT_ADAPTER = :net_http
@@ -44,7 +44,7 @@ class ShafClient
       )
 
       body = String(response.body)
-      response.headers['content-type'] = 'profile=__shaf_client_emtpy__' if body.empty?
+      response.headers['content-type'] = '__shaf_client_emtpy__' if body.empty?
 
       Resource.build(self, body, response.status, response.headers)
     end

@@ -1,12 +1,13 @@
 require 'shaf_client/resource'
 
 class ShafClient
-  class EmptyResource < Resource
-    attr_reader :http_status, :headers
+  class UnknownResource < Resource
+    attr_reader :http_status, :headers, :body
 
-    ResourceMapper.register('__shaf_client_emtpy__', self)
+    ResourceMapper.default = self
 
-    def initialize(_client, _payload, status = nil, headers = {})
+    def initialize(_client, payload, status = nil, headers = {})
+      @body = payload.freeze
       @http_status = status
       @headers = headers
       @attributes = {}.freeze
@@ -21,7 +22,7 @@ class ShafClient
 
     %i[get put post delete patch, get_doc, reload!].each do |method|
       define_method(method) do |*_args|
-        raise "EmptyResource: #{method} not available"
+        raise "UnknownResource: #{method} not available"
       end
     end
   end
