@@ -53,6 +53,12 @@ class ShafClient
       embedded_resources[rewritten_rel]
     end
 
+    def rel?(rel)
+      !link(rel).nil?
+    rescue StandardError
+      false
+    end
+
     def [](key)
       attributes[key]
     end
@@ -132,7 +138,7 @@ class ShafClient
       unless rel.to_s.include? ':'
         matches = rels.grep(/[^:]*:#{rel}/)
         return matches.first if matches.size == 1
-        raise Error, "Ambiguous rel: #{rel}. (#{matches})" if matches.size > 1
+        raise AmbiguousRelError, "Ambiguous rel: #{rel}. (#{matches})" if matches.size > 1
       end
 
       best_match(rels, rel.to_s.tr('_', '-')) if rel.to_s.include? '_'

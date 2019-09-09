@@ -35,6 +35,7 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#delete(rel, payload: nil)`     - Performs a DELETE request to the href of the link with rel _rel_
  - `#patch(rel, payload: nil)`      - Performs a PATCH request to the href of the link with rel _rel_
  - `#get_doc(rel)`                  - Retrieves the documentation for a _rel_ by looking up its curie
+ - `#rel?(rel)`                     - Returns true if the resource has a link with rel _rel_
  - `#reload!`                       - Refresh itself by fetching the _self_ link (by-passing cache)
  - `#destroy!`                      - Performs a DELETE request to the href of the link with rel _delete_
  - `#http_status`                   - The response HTTP status returned by the server

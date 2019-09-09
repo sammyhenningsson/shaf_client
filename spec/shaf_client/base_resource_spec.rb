@@ -144,4 +144,24 @@ describe ShafClient::BaseResource do
     resource2.link(:self).href.must_equal('/one')
     resource2.embedded(:item).attribute(:c).must_equal('first')
   end
+
+  it '#rel?' do
+    payload = JSON.generate(
+      a: 'one',
+      b: 1,
+      _links: {
+        self: { href: '/one' },
+        'foo-bar': { href: '/foo' }
+      }
+    )
+    resource = ShafClient::BaseResource.new(payload)
+    assert resource.rel? :self
+    assert resource.rel? 'self'
+    assert resource.rel? :'foo-bar'
+    assert resource.rel? :foo_bar
+    assert resource.rel? 'foo-bar'
+
+    refute resource.rel? 'foo'
+    refute resource.rel? :foo
+  end
 end
