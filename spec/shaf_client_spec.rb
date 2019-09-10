@@ -54,7 +54,7 @@ describe ShafClient do
 
     response = client.get('/form')
 
-    response.must_be_instance_of ShafClient::Form
+    response.must_be_kind_of ShafClient::Form
     response.http_method.must_equal :post
   end
 

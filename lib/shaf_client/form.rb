@@ -1,16 +1,15 @@
 require 'json'
 require 'shaf_client/link'
+require 'shaf_client/field'
 
 class ShafClient
   class Form < Resource
 
-    profile 'shaf-form'
-
     def values
       return @values if defined? @values
 
-      @values = attribute(:fields).each_with_object({}) do |d, v|
-        v[d['name'].to_sym] = d['value']
+      @values = fields.each_with_object({}) do |field, values|
+        values[field.name] = field.value
       end
     end
 
@@ -23,20 +22,36 @@ class ShafClient
     end
 
     def target
-      attribute(:href)
+      raise NotImplementedError
     end
 
     def http_method
-      attribute(:method).downcase.to_sym
+      raise NotImplementedError
+    end
+
+    def content_type
+      raise NotImplementedError
+    end
+
+    def fields
+      raise NotImplementedError
     end
 
     def submit
-      client.send(http_method, target, payload: @values)
+      client.send(
+        http_method,
+        target,
+        payload: encoded_payload,
+        headers: {'Content-Type' => content_type}
+      )
     end
 
     def valid?
-      attribute(:fields).all? do |field|
-        valid_field? field
+      field_value_mapping
+
+      fields.all? do |field|
+        value = values[field.name.to_sym]
+        field.valid? value
       end
     end
 
@@ -50,32 +65,25 @@ class ShafClient
       super
     end
 
-    def valid_field?(field)
-      key = field['name'].to_sym
-      return false unless validate_required(field, key)
-      return true  if values[key].nil?
-      return false unless validate_number(field, key)
-      return false unless validate_string(field, key)
-      true
-    end
-
     private
 
-    def validate_required(field, key)
-      return true unless field['required']
-      return false if values[key].nil?
-      return false if values[key].respond_to?(:empty) && values[key].empty?
-      true
+    def encoded_payload
+      if content_type&.downcase == 'application/x-www-form-urlencoded'
+        raise NotImplementedError
+        # urlencode(values)
+      else
+        JSON.generate(values) 
+      end
     end
 
-    def validate_string(field, key)
-      return true unless %w[string text].include? field.fetch('type', '').downcase
-      values[key].is_a? String
+    def field_names
+      fields.map { |f| f.name.to_sym }
     end
 
-    def validate_number(field, key)
-      return true unless %w[int integer number].include? field.fetch('type', '').downcase
-      values.fetch(key, 0).is_a? Numeric
+    def field_value_mapping
+      field_names.each_with_object({}) do |name, mapping|
+        mapping[name.to_sym] = values[name.to_sym]
+      end
     end
   end
 end
