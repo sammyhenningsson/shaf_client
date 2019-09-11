@@ -25,16 +25,18 @@ class ShafClient
       @templated = templated
       @type = type&.downcase
       @value = value
-      @regex = regex
+      @regex = parse_regexp(regex)
     end
 
     def valid?(value)
-      value ||= @value
       return false unless validate_required(value)
       return false unless validate_number(value)
       return false unless validate_string(value)
+      return false unless validate_regexp(value)
       true
     end
+
+    private
 
     def validate_required(value)
       return true unless required
@@ -54,6 +56,20 @@ class ShafClient
       return true unless type
       return true unless %w[string text].include? type
       value.is_a? String
+    end
+
+    def validate_regexp(value)
+      str = String(value)
+      return true if str.empty?
+      return true unless regex
+      str.match? regex
+    end
+
+    def parse_regexp(str)
+      return if String(str).empty?
+      Regexp.new(str)
+    rescue RegexpError
+      nil
     end
   end
 end
