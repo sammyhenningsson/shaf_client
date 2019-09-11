@@ -14,11 +14,16 @@ class ShafClient
     end
 
     def [](key)
-      values[key.to_sym]
+      values.fetch(key.to_sym)
     end
 
     def []=(key, value)
+      values.fetch(key.to_sym) # Raise KeyError unless key exist!
       values[key.to_sym] = value
+    end
+
+    def title
+      raise NotImplementedError
     end
 
     def target

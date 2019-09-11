@@ -5,6 +5,14 @@ class ShafClient
 
     profile 'shaf-form'
 
+    def title
+      attribute(:title)
+    end
+
+    def name
+      attribute(:name)
+    end
+
     def target
       attribute(:href)
     end

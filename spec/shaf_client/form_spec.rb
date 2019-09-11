@@ -1,69 +1,75 @@
 require 'spec_helper'
 
-# class ShafClient
-#   module FormSpec
-#     let(:client) { nil }
-#     let(:form) do
-#       ShafClient::Form.new(
-#         client,
-#         {
-#           method: 'POST',
-#           name: 'create-post',
-#           title: 'Create Post',
-#           href: '/posts',
-#           type: 'application/json',
-#           _links: {
-#             self: {
-#               href: 'http://localhost:3000/posts/form'
-#             }
-#           },
-#           fields: [
-#             {
-#               'name' => 'foo',
-#               'type' => 'string'
-#             },
-#             {
-#               'name' => 'bar',
-#               'type' => 'string',
-#               'required' => true
-#             },
-#             {
-#               'name' => 'baz',
-#               'type' => 'integer'
-#             }
-#           ]
-#         }
-#       )
-#     end
-
-#     describe '#valid?' do
-#       it 'returns true when form is valid' do
-#         form[:foo] = 'hello'
-#         form[:bar] = 'world'
-#         form[:baz] = 3
-
-#         form.must_be :valid?
-#       end
-
-#       it 'only requires required fields to be filled' do
-#         form[:bar] = 'world'
-
-#         form.must_be :valid?
-#       end
-
-#       it 'returns false when an integer is assigned to a string field' do
-#         form[:foo] = 5
-#         form[:bar] = 'world'
-
-#         form.wont_be :valid?
-#       end
-
-#       it 'returns false when a string is assigned to an integer field' do
-#         form[:bar] = 'world'
-#         form[:baz] = '4'
-
-#         form.wont_be :valid?
-#       end
-#     end
+# Include this module in sub classes of ShafClient::Form and assign the @form
+# instance variable (with an instance of the inherited form) in the before
+# hook. Example:
+# 
+# describe FormChild do
+#   include ShafClient::FormSpec
+#
+#   before do
+#     @form = FormChild.new(args)
 #   end
 # end
+
+class ShafClient
+  module FormSpec
+    extend Minitest::Spec::DSL
+
+    let(:http_method) { 'POST' }
+    let(:client) { Minitest::Mock.new }
+
+    it '#[] and #[]=' do
+      field = @form.fields.first
+      field.wont_be_nil
+      @form[field.name] = 'foo'
+      @form[field.name].must_equal 'foo'
+    end
+
+    it '#[] raises exception when key does not exist' do
+      -> { @form['non-exisitng-field'] }.must_raise KeyError
+    end
+
+    it '#[]= raises exception when key does not exist' do
+      -> { @form['non-exisitng-field'] = 'foo' }.must_raise KeyError
+    end
+
+    it '#title' do
+      @form.title # wont raise
+    end
+
+    it '#target' do
+      @form.target.wont_be_nil
+    end
+
+    it '#http_method' do
+      @form.http_method.wont_be_nil
+    end
+
+    it '#content_type' do
+      @form.content_type.wont_be_nil
+    end
+
+    it '#fields' do
+      fields = @form.fields
+      fields.wont_be :empty?
+      fields.each do |field|
+        field.must_be_kind_of(Field)
+      end
+    end
+
+    it '#submit' do
+      method = http_method.downcase.to_sym
+      client.expect method, nil do |target, **kwargs|
+        next unless target == @form.target
+        next unless kwargs[:payload]
+        next unless kwargs[:headers]['Content-Type'] == @form.content_type
+        true
+      end
+
+      @form.submit
+
+      client.verify
+    end
+  end
+end
