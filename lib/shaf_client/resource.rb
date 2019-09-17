@@ -49,6 +49,21 @@ class ShafClient
       client.get_doc(uri)
     end
 
+    def get_hal_form(rel)
+      href = link(rel).href
+      uri = rel.to_s
+      if uri.match? %r{:[^/]}
+        curie_name, rel = rel.split(':')
+        curie = curie(curie_name)
+        uri = curie.resolve_templated(rel: rel)
+      end
+
+      headers = {'Accept': 'application/prs.hal-forms+json'}
+      client.get(uri, headers: headers).tap do |form|
+        form.target = href if form.respond_to? :target= 
+      end
+    end
+
     def reload!
       self << get(:self, headers: {'Cache-Control': 'no-cache'})
     end

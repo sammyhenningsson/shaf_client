@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'shaf_client/form_spec'
 
 class ShafClient
   describe ShafForm do
