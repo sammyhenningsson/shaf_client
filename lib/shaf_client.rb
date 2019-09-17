@@ -92,8 +92,9 @@ class ShafClient
   end
 
   def faraday_cache_params(options)
-    options.fetch(:faraday_http_cache, shared_cache: false).tap do |cache_params|
+    options.fetch(:faraday_http_cache, {}).tap do |cache_params|
       cache_params[:store] ||= options[:http_cache_store] if options[:http_cache_store]
+      cache_params[:shared_cache] ||= false
     end
   end
 
