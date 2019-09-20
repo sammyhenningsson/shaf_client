@@ -2,8 +2,6 @@
 
 class ShafClient
   class Link
-    attr_reader :templated
-
     def self.from(data)
       if data.is_a? Array
         data.map { |d| new(href: d['href'], templated: d['templated']) }
@@ -17,7 +15,9 @@ class ShafClient
       @templated = !!templated
     end
 
-    alias templated? templated
+    def templated?
+      @templated
+    end
 
     def href
       @href.dup
@@ -26,10 +26,9 @@ class ShafClient
     def resolve_templated(**args)
       return href unless templated?
 
-      args.inject(href) do |uri, (key, value)|
-        value = value.to_s.sub(/.+:/, '')
-        uri.sub(/{#{key}}/, value)
-      end
+      href
+        .then { |href| resolve_required(href, **args) }
+        .then { |href| resolve_optional(href, **args) }
     end
 
     def to_h
@@ -37,6 +36,30 @@ class ShafClient
         href: href,
         templated: templated?
       }
+    end
+
+    private
+
+    def resolve_required(href, **args)
+      String(href).gsub(/{(?!\?)([^}]*)}/) do
+        key = $1.to_sym
+        args.fetch key do
+          raise ArgumentError, "missing keyword: :#{key}"
+        end
+      end
+    end
+
+    def resolve_optional(href, **args)
+      String(href).gsub(/{\?([^}]*)}/) do
+        values = []
+        $1.split(',').each do |key|
+          next unless args.key? key.to_sym
+          values << "#{key}=#{args[key.to_sym]}"
+        end
+
+        next '' if values.empty?
+        "?#{values.join('&')}"
+      end
     end
   end
 end

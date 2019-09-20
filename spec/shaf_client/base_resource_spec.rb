@@ -75,7 +75,7 @@ describe ShafClient::BaseResource do
     curie.resolve_templated(rel: 'other').must_equal '/documentation/other'
   end
 
-  it 'parses embedded reource' do
+  it 'parses embedded reources' do
     payload = JSON.generate(
       _embedded: {
         newest_item: {

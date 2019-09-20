@@ -21,5 +21,10 @@ class ShafClient
       @href = href
       @templated = !!templated
     end
+
+    def resolve_templated(**args)
+      args[:rel] &&= args[:rel].to_s.sub(/#{name}:/, '')
+      super(**args)
+    end
   end
 end
