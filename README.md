@@ -10,7 +10,7 @@ gem install shaf_client
 Or put `gem 'shaf_client'` in your Gemfile and run `bundle install`
 
 
-# Usage
+## Usage
 Create an instance of `ShafClient` with a uri to the API entry point. Then call `get_root` on the returned client to start interacting with the API and get back a `ShafClient::Resource`.
 ```ruby
 client = ShafClient.new('https://my.hal_api.com/')
@@ -35,6 +35,7 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#delete(rel, payload: nil)`     - Performs a DELETE request to the href of the link with rel _rel_
  - `#patch(rel, payload: nil)`      - Performs a PATCH request to the href of the link with rel _rel_
  - `#get_doc(rel)`                  - Retrieves the documentation for a _rel_ by looking up its curie
+ - `#get_hal_form(rel)`             - Retrieves a form by performing a GET request on the value of _rel_.
  - `#rel?(rel)`                     - Returns true if the resource has a link with rel _rel_
  - `#reload!`                       - Refresh itself by fetching the _self_ link (by-passing cache)
  - `#destroy!`                      - Performs a DELETE request to the href of the link with rel _delete_
@@ -42,7 +43,7 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#headers`                       - The response HTTP headers returned by the server
 
 
-# Examples
+## Examples
 ```ruby
 require 'shaf_client'
 client = ShafClient.new('http://localhost:3000')
@@ -57,7 +58,7 @@ posts.embedded(:posts)      # Returns an array of `ShafClient::BaseResource` ins
 
 form = posts.get("doc:create-form") # this assumes that Content-Type contains the profile 'shaf-form'.
                                     # it's also possible to type: posts.get("create-form") or posts.get(:create_form)
-form.class                  # => ShafClient::Form
+form.class                  # => ShafClient::ShafForm
 form.values                 # => {:title=>nil, :message=>nil}
 form.valid?                 # => false
 form[:title] = "hello"
@@ -100,9 +101,9 @@ puts created_post.to_s      # => {
 
 ```
 
-# Adding semantic meaning to resources
-Note the form in the example above. `form` is an instance of `ShafClient::Form` (which is a subclass of `ShafClient::Resource`).
-It has a few extra methods that makes it easy to fill in the form and submit it. The reason that we received an instance of `ShafClient::Form` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of this representation and luckily ShafClient knowns about this profile.  
+## Adding semantic meaning to resources
+Note the form in the example above. `form` is an instance of `ShafClient::ShafForm` (which is a subclass of `ShafClient::Form` which in turn is a subclass of `ShafClient::Resource`).
+Forms have a few extra methods that makes it easy to fill in values and submiting them. The reason that we received an instance of `ShafClient::ShafForm` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of this representation and luckily ShafClient knowns about this profile.  
 Adding support for other profiles is as simple as creating a subclass of `ShafClient::Resource` and call the class method `profile` with the name of your profile. So say that you have a server that returns a response with Content-Type: `application/hal+json;profile=foobar`. Then you could do something like this:
 ```ruby
 class CustomResource < ShafClient::Resource
@@ -119,7 +120,19 @@ foobar.attr_string      # => "key1_key2_key3"
 ```
 Note: This only serves the purpose of understanding how this works :)
 
-# Authentication
+## HAL-FORMS
+ShafClient also support forms presented using the [HAL-FORMS](https://rwcbook.github.io/hal-forms/) mediatype.
+The workflow using `HAL-FORMS` differs a bit from `shaf-forms` and requires the client to intentionally request a form. For this, the method `#get_hal_form(rel)` is used.
+The returned object is an instance of `ShafClient::HalForm` (which is a subclass of `ShafClient::Form`). So submitting the form follows the same flow as shown above. 
+The `rel` given to `#get_hal_form(rel)` may be compacted with a curie. In that case it will be "expanded" before the GET request is performed.
+
+## Non HAL responses
+Of courese, not all responses will be formatted as HAL. Whenever the response body is empty an instance of `ShafClient::EmptyResource` is returned.
+If the Content-Type cannot be understood an instance of `ShafClient::UnknownResource`.
+These two classes also inherit from `ShafClient::Resource` so all the usual methods are still available (though most of them return `nil`, `""`, `{}` or `[]`).
+Instances of `ShafClient::UnknownResource` also has a`#body` method. `#body`, `#http_status` and `#headers` are basically the only usefull methods for those instances.
+
+## Authentication
 ShafClient supports basic auth and token based authentication.  
 For Basic Auth, pass keyword arguments `:user` and `password` when instantiating the client.
 ```ruby
@@ -132,13 +145,13 @@ client = ShafClient.new('https://my.hal_api.com/', auth_token: "Ohd2quet")
 client = ShafClient.new('https://my.hal_api.com/', auth_token: "Ohd2quet", auth_header: "Authorization")
 ```
 
-# Faraday
+## Faraday
 ShafClient wraps the [faraday](https://github.com/lostisland/faraday) gem. By default it uses the `Net::HTTP` adapter. To use another adapter pass in the corresponding symbol in the `:faraday_adapter` when instantiating the client. (Note: make sure to install and require corresponding dependencies.)
 ```ruby
 client = ShafClient.new('https://my.hal_api.com/', faraday_adapter: :net_http_persistent)
 ```
 
-# HTTP cache
+## HTTP cache
 ShafClient supports HTTP caching by using the [faraday-http-cache](https://github.com/plataformatec/faraday-http-cache), Faraday middleware.
 This means that if the server returns responses with caching directives (e.g. `Cache-Control`, `Etag` etc), those responses are properly cached. And no unnecessary request will be made when a valid cache entry exist.
 To pass down options to faraday-http-cache (e.g a cache store) pass them to ShafClient as options under the `:faraday_http_cache` key.
@@ -147,7 +160,7 @@ store = ActiveSupport::Cache.lookup_store(:mem_cache_store, ['localhost:11211'])
 client = ShafClient.new('https://my.hal_api.com/', faraday_http_cache: {store: store})
 ```
 
-# Redirects
+## Redirects
 ShafClient will automatically follow redirects.  
 
 ## Contributing
