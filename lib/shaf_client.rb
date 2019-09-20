@@ -45,7 +45,7 @@ class ShafClient
       )
 
       body = String(response.body)
-      response.headers['content-type'] = '__shaf_client_emtpy__' if body.empty?
+      response.headers['content-type'] = nil if body.empty?
 
       Resource.build(self, body, response.status, response.headers)
     end

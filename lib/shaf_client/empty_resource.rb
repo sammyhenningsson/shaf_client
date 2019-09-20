@@ -4,7 +4,7 @@ class ShafClient
   class EmptyResource < Resource
     attr_reader :http_status, :headers
 
-    ResourceMapper.register('__shaf_client_emtpy__', self)
+    ResourceMapper.register(nil, self)
 
     def initialize(_client, _payload, status = nil, headers = {})
       @http_status = status
