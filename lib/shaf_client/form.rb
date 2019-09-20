@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require 'json'
+require 'uri'
 require 'shaf_client/link'
 require 'shaf_client/field'
 
@@ -74,8 +77,7 @@ class ShafClient
 
     def encoded_payload
       if content_type&.downcase == 'application/x-www-form-urlencoded'
-        raise NotImplementedError
-        # urlencode(values)
+        URI.encode_www_form(values)
       else
         JSON.generate(values) 
       end
