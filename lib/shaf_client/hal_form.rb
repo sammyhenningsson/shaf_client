@@ -19,7 +19,7 @@ class ShafClient
     end
 
     def content_type
-      template[:contentType]
+      template[:contentType] || 'application/json'
     end
 
     def fields
