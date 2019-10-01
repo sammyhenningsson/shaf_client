@@ -9,12 +9,12 @@ describe ShafClient::BaseResource do
     )
     resource = ShafClient::BaseResource.new(payload)
 
-    resource.attributes.size.must_equal 3
-    resource.attribute(:foo).must_equal 'foo'
-    resource.attribute(:bar).must_equal 2
-    resource.attribute(:baz).must_equal %w[a b c]
-    resource.links.must_be_empty
-    resource.embedded_resources.must_be_empty
+    _(resource.attributes.size).must_equal 3
+    _(resource.attribute(:foo)).must_equal 'foo'
+    _(resource.attribute(:bar)).must_equal 2
+    _(resource.attribute(:baz)).must_equal %w[a b c]
+    _(resource.links).must_be_empty
+    _(resource.embedded_resources).must_be_empty
   end
 
   it 'parses attributes from hash' do
@@ -25,10 +25,10 @@ describe ShafClient::BaseResource do
     }
     resource = ShafClient::BaseResource.new(payload)
 
-    resource.attributes.size.must_equal 3
-    resource.attribute(:foo).must_equal 'foo'
-    resource.attribute(:bar).must_equal 2
-    resource.attribute(:baz).must_equal %w[a b c]
+    _(resource.attributes.size).must_equal 3
+    _(resource.attribute(:foo)).must_equal 'foo'
+    _(resource.attribute(:bar)).must_equal 2
+    _(resource.attribute(:baz)).must_equal %w[a b c]
   end
 
   it 'parses links' do
@@ -40,14 +40,14 @@ describe ShafClient::BaseResource do
     )
     resource = ShafClient::BaseResource.new(payload)
 
-    resource.links.size.must_equal 2
-    resource.link(:self).must_be_instance_of ShafClient::Link
-    resource.link(:self).href.must_equal '/self'
-    resource.link(:self).wont_be :templated?
-    resource.link(:other).must_be_instance_of ShafClient::Link
-    resource.link(:other).href.must_equal '/other'
-    resource.link(:other).wont_be :templated?
-    resource.attributes.must_be_empty
+    _(resource.links.size).must_equal 2
+    _(resource.link(:self)).must_be_instance_of ShafClient::Link
+    _(resource.link(:self).href).must_equal '/self'
+    _(resource.link(:self)).wont_be :templated?
+    _(resource.link(:other)).must_be_instance_of ShafClient::Link
+    _(resource.link(:other).href).must_equal '/other'
+    _(resource.link(:other)).wont_be :templated?
+    _(resource.attributes).must_be_empty
   end
 
   it 'parses curies' do
@@ -65,14 +65,14 @@ describe ShafClient::BaseResource do
     )
     resource = ShafClient::BaseResource.new(payload)
 
-    resource.links.size.must_equal 1
-    resource.curies.size.must_equal 1
+    _(resource.links.size).must_equal 1
+    _(resource.curies.size).must_equal 1
     curie = resource.curie(:doc)
-    curie.must_be_instance_of ShafClient::Curie
-    curie.href.must_equal '/documentation/{rel}'
-    curie.must_be :templated?
-    curie.resolve_templated(rel: 'doc:other').must_equal '/documentation/other'
-    curie.resolve_templated(rel: 'other').must_equal '/documentation/other'
+    _(curie).must_be_instance_of ShafClient::Curie
+    _(curie.href).must_equal '/documentation/{rel}'
+    _(curie).must_be :templated?
+    _(curie.resolve_templated(rel: 'doc:other')).must_equal '/documentation/other'
+    _(curie.resolve_templated(rel: 'other')).must_equal '/documentation/other'
   end
 
   it 'parses embedded reources' do
@@ -97,15 +97,15 @@ describe ShafClient::BaseResource do
     resource = ShafClient::BaseResource.new(payload)
 
     item = resource.embedded(:newest_item)
-    item.must_be_instance_of ShafClient::BaseResource
-    item.id.must_equal 2
-    item.name.must_equal 'item2'
+    _(item).must_be_instance_of ShafClient::BaseResource
+    _(item.id).must_equal 2
+    _(item.name).must_equal 'item2'
 
-    resource.embedded_resources.size.must_equal 2
+    _(resource.embedded_resources.size).must_equal 2
     items = resource.embedded(:items)
-    items.must_be_instance_of Array
-    items.first.id.must_equal 1
-    items.last.name.must_equal 'item2'
+    _(items).must_be_instance_of Array
+    _(items.first.id).must_equal 1
+    _(items.last.name).must_equal 'item2'
   end
 
   it '#<<' do
@@ -139,10 +139,10 @@ describe ShafClient::BaseResource do
 
     resource2.send(:<<, resource1)
 
-    resource2.attribute(:a).must_equal('one')
-    resource2.attribute(:b).must_equal(1)
-    resource2.link(:self).href.must_equal('/one')
-    resource2.embedded(:item).attribute(:c).must_equal('first')
+    _(resource2.attribute(:a)).must_equal('one')
+    _(resource2.attribute(:b)).must_equal(1)
+    _(resource2.link(:self).href).must_equal('/one')
+    _(resource2.embedded(:item).attribute(:c)).must_equal('first')
   end
 
   it '#rel?' do

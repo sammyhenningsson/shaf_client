@@ -26,8 +26,8 @@ describe ShafClient do
 
     response = client.get('/stuff')
 
-    response.must_be_instance_of ShafClient::Resource
-    response.message.must_equal 'hello'
+    _(response).must_be_instance_of ShafClient::Resource
+    _(response.message).must_equal 'hello'
   end
 
   it 'returns a Form' do
@@ -54,17 +54,17 @@ describe ShafClient do
 
     response = client.get('/form')
 
-    response.must_be_kind_of ShafClient::Form
-    response.http_method.must_equal :post
+    _(response).must_be_kind_of ShafClient::Form
+    _(response.http_method).must_equal :post
   end
 
   it 'returns an EmptyResource' do
     stub_response(uri: '/empty', status: 204, headers: {foo: 'bar'})
     response = client.get('/empty')
 
-    response.must_be_instance_of ShafClient::EmptyResource
-    response.headers[:foo].must_equal 'bar'
-    response.http_status.must_equal 204
+    _(response).must_be_instance_of ShafClient::EmptyResource
+    _(response.headers[:foo]).must_equal 'bar'
+    _(response.http_status).must_equal 204
   end
 
   it 'returns an UnknownResource' do
@@ -75,9 +75,9 @@ describe ShafClient do
     )
     response = client.get('/unknown')
 
-    response.must_be_instance_of ShafClient::UnknownResource
-    response.headers[:content_type].must_equal 'text/plain'
-    response.http_status.must_equal 200
-    response.body.must_equal 'hello'
+    _(response).must_be_instance_of ShafClient::UnknownResource
+    _(response.headers[:content_type]).must_equal 'text/plain'
+    _(response.http_status).must_equal 200
+    _(response.body).must_equal 'hello'
   end
 end

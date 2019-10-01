@@ -37,28 +37,28 @@ class ShafClient
     end
 
     it '#title' do
-      form.title.must_equal 'Create'
+      _(form.title).must_equal 'Create'
     end
 
     it '#target' do
-      form.target.must_equal '/posts'
+      _(form.target).must_equal '/posts'
     end
 
     it '#http_method' do
-      form.http_method.must_equal :post
+      _(form.http_method).must_equal :post
     end
 
     it '#content_type' do
-      form.content_type.must_equal 'application/json'
+      _(form.content_type).must_equal 'application/json'
     end
 
     it '#valid? returns true when form is valid' do
-      form.wont_be :valid?
+      _(form).wont_be :valid?
       form[:title] = 'hello'
-      form.wont_be :valid?
+      _(form).wont_be :valid?
       form[:title] = 'foobar'
 
-      form.must_be :valid?
+      _(form).must_be :valid?
     end
   end
 end

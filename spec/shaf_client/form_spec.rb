@@ -21,17 +21,17 @@ class ShafClient
 
     it '#[] and #[]=' do
       field = @form.fields.first
-      field.wont_be_nil
+      _(field).wont_be_nil
       @form[field.name] = 'foo'
-      @form[field.name].must_equal 'foo'
+      _(@form[field.name]).must_equal 'foo'
     end
 
     it '#[] raises exception when key does not exist' do
-      -> { @form['non-exisitng-field'] }.must_raise KeyError
+      _(-> { @form['non-exisitng-field'] }).must_raise KeyError
     end
 
     it '#[]= raises exception when key does not exist' do
-      -> { @form['non-exisitng-field'] = 'foo' }.must_raise KeyError
+      _(-> { @form['non-exisitng-field'] = 'foo' }).must_raise KeyError
     end
 
     it '#title' do
@@ -39,22 +39,22 @@ class ShafClient
     end
 
     it '#target' do
-      @form.target.wont_be_nil
+      _(@form.target).wont_be_nil
     end
 
     it '#http_method' do
-      @form.http_method.wont_be_nil
+      _(@form.http_method).wont_be_nil
     end
 
     it '#content_type' do
-      @form.content_type.wont_be_nil
+      _(@form.content_type).wont_be_nil
     end
 
     it '#fields' do
       fields = @form.fields
-      fields.wont_be :empty?
+      _(fields).wont_be :empty?
       fields.each do |field|
-        field.must_be_kind_of(Field)
+        _(field).must_be_kind_of(Field)
       end
     end
 
