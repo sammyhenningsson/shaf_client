@@ -36,10 +36,21 @@ class ShafClient
       RESOURCE
     end
 
-    %i[get put post delete patch].each do |method|
+    %i[put post delete patch].each do |method|
       define_method(method) do |rel, payload = nil, **options|
         href = link(rel).href
         client.send(method, href, payload: payload, **options)
+      end
+    end
+
+    def get(rel, **options)
+      if embedded_resource = _embedded(rel)
+        # FIXME: What if this resource should have a profile (or another content type)?
+        headers = {'content-type' => 'application/hal+json'}
+        self.class.build(client, embedded_resource, 203, headers)
+      else
+        href = link(rel).href
+        client.get(href, payload: payload, **options)
       end
     end
 

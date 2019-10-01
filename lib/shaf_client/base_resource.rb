@@ -24,8 +24,8 @@ class ShafClient
 
     def to_h
       attributes.dup.tap do |hash|
-        hash[:_links] = transform_values_to_s(links)
-        embedded = transform_values_to_s(embedded_resources)
+        hash[:_links] = transform_values_to_h(links)
+        embedded = transform_values_to_h(embedded_resources)
         hash[:_embedded] = embedded unless embedded.empty?
       end
     end
@@ -39,31 +39,23 @@ class ShafClient
     end
 
     def attribute(key)
-      raise Error, "No attribute for key: #{key}" unless attributes.key? key
-      attributes.fetch(key.to_sym)
+      _attribute(key) or raise Error, "No attribute for key: #{key}"
     end
 
     def link(rel)
-      rewritten_rel = best_match(links.keys, rel)
-      raise Error, "No link with rel: #{rel}" unless links.key? rewritten_rel
-      links[rewritten_rel]
+      _link(rel) or raise Error, "No link with rel: #{rel}"
     end
 
     def curie(rel)
-      raise Error, "No curie with rel: #{rel}" unless curies.key? rel.to_sym
-      curies[rel.to_sym]
+      _curie(rel) or raise Error, "No curie with rel: #{rel}"
     end
 
     def embedded(rel)
-      rewritten_rel = best_match(embedded_resources.keys, rel)
-      unless embedded_resources.key? rewritten_rel
-        raise Error, "No embedded resources with rel: #{rel}"
-      end
-      embedded_resources[rewritten_rel]
+      _embedded(rel) or raise Error, "No embedded resources with rel: #{rel}"
     end
 
     def rel?(rel)
-      !link(rel).nil?
+      !link(rel).nil? || !embedded(rel).nil?
     rescue StandardError
       false
     end
@@ -80,6 +72,24 @@ class ShafClient
 
     def payload
       @payload ||= {}
+    end
+
+    def _attribute(key)
+      attributes[key.to_sym]
+    end
+
+    def _link(rel)
+      rewritten_rel = best_match(links.keys, rel)
+      links[rewritten_rel]
+    end
+
+    def _curie(rel)
+      curies[rel.to_sym]
+    end
+
+    def _embedded(rel)
+      rewritten_rel = best_match(embedded_resources.keys, rel)
+      embedded_resources[rewritten_rel]
     end
 
     def <<(other)
@@ -153,7 +163,7 @@ class ShafClient
       best_match(rels, rel.to_s.tr('_', '-')) if rel.to_s.include? '_'
     end
 
-    def transform_values_to_s(hash)
+    def transform_values_to_h(hash)
       hash.transform_values do |value|
         if value.is_a? Array
           value.map(&:to_h)
