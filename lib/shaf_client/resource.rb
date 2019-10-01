@@ -43,7 +43,7 @@ class ShafClient
       end
     end
 
-    def get_doc(rel)
+    def get_doc(rel, **options)
       rel = rel.to_s
       curie_name, rel =
         if rel.include? ':'
@@ -54,7 +54,7 @@ class ShafClient
 
       curie = curie(curie_name)
       uri = curie.resolve_templated(rel: rel)
-      client.get_doc(uri)
+      client.get(uri, options)
     end
 
     def get_hal_form(rel)

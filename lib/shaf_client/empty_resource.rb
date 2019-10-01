@@ -21,7 +21,7 @@ class ShafClient
 
     %i[get put post delete patch, get_doc, reload!].each do |method|
       define_method(method) do |*_args|
-        raise "EmptyResource: #{method} not available"
+        raise Error, "EmptyResource: #{method} not available"
       end
     end
   end

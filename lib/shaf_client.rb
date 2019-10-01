@@ -35,11 +35,6 @@ class ShafClient
     get(@root_uri, **options)
   end
 
-  def get_doc(uri, **options)
-    response = request(method: :get, uri: uri, opts: options)
-    response&.body || ''
-  end
-
   %i[get put post delete patch].each do |method|
     define_method(method) do |uri, payload: nil, **options|
       response = request(

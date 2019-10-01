@@ -22,7 +22,7 @@ class ShafClient
 
     %i[get put post delete patch, get_doc, reload!].each do |method|
       define_method(method) do |*_args|
-        raise "UnknownResource: #{method} not available"
+        raise Error, "UnknownResource: #{method} not available"
       end
     end
   end
