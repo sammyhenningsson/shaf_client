@@ -10,8 +10,13 @@ class ShafClient
       @payload =
         if payload&.is_a? String
           JSON.parse(payload)
+        elsif payload.respond_to? :to_h
+          payload.to_h
         else
-          payload
+          raise Error, <<~ERR
+            Trying to create an instance of #{self.class} with a payload that
+            cannot be coerced into a Hash
+          ERR
         end
 
       parse
