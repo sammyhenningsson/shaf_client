@@ -96,6 +96,7 @@ class ShafClient
     options.fetch(:faraday_http_cache, {}).tap do |cache_params|
       cache_params[:store] ||= options[:http_cache_store] if options[:http_cache_store]
       cache_params[:shared_cache] ||= false
+      cache_params[:serializer] ||= Marshal
     end
   end
 
