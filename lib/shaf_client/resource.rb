@@ -28,6 +28,14 @@ class ShafClient
       super(payload)
     end
 
+    def inspect
+      <<~RESOURCE
+        Status: #{http_status}
+        Headers: #{headers}
+        #{to_s}
+      RESOURCE
+    end
+
     %i[get put post delete patch].each do |method|
       define_method(method) do |rel, payload = nil, **options|
         href = link(rel).href

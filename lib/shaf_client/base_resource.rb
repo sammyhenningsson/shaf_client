@@ -29,6 +29,10 @@ class ShafClient
       JSON.pretty_generate(to_h)
     end
 
+    def inspect
+      to_s
+    end
+
     def attribute(key)
       raise Error, "No attribute for key: #{key}" unless attributes.key? key
       attributes.fetch(key.to_sym)

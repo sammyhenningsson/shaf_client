@@ -29,6 +29,7 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#[](key)`                       - Alias for `attribute(key)`
  - `#actions`                       - Returns a list of all links relations
  - `#to_s`                          - Returns a `String` representation
+ - `#inspect`                       - Returns a detailed `String` representation
  - `#get(rel)`                      - Performs a GET request to the href of the link with rel _rel_
  - `#put(rel, payload: nil)`        - Performs a PUT request to the href of the link with rel _rel_
  - `#post(rel, payload: nil)`       - Performs a POST request to the href of the link with rel _rel_
