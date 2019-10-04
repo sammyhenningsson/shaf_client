@@ -1,14 +1,14 @@
 PATH
   remote: .
   specs:
-    shaf_client (0.6.1)
+    shaf_client (0.6.2)
       faraday (~> 0.15)
       faraday-http-cache (~> 2.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    faraday (0.15.4)
+    faraday (0.16.2)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.0.0)
       faraday (~> 0.8)
