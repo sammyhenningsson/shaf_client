@@ -23,9 +23,9 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#curies`                        - Returns a hash of all curies
  - `#embedded_resources`            - Returns a hash of all embedded resources
  - `#attribute(key)`                - Returns the value for attribute with key _key_
- - `#link(rel)`                     - Returns `ShafClient::Link` for the given _rel_
- - `#curie(rel)`                    - Returns `ShafClient::Curie` for the given _rel_
- - `#embedded(rel)`                 - Returns `ShafClient::BaseResource` for the given _rel_
+ - `#link(rel)`                     - Returns a `ShafClient::Link` for the given _rel_
+ - `#curie(rel)`                    - Returns a `ShafClient::Curie` for the given _rel_
+ - `#embedded(rel)`                 - Returns a `ShafClient::BaseResource` for the given _rel_
  - `#[](key)`                       - Alias for `attribute(key)`
  - `#actions`                       - Returns a list of all links relations
  - `#to_s`                          - Returns a `String` representation
@@ -68,20 +68,20 @@ created_post = form.submit  # Returns a new `ShafClient::Resource`
 
 
 created_post.attributes     # => {:title=>"hello", :message=>"world"}
-created_post.actions        # => [:"doc:up", :self, :"doc:edit-form", :"doc:delete"]
+created_post.actions        # => [:"collection", :self, :"edit-form", :"doc:delete"]
 puts created_post.to_s      # => {
                             #      "title": "hello",
                             #      "message": "world",
                             #      "user_id": 1,
                             #      "_links": {
-                            #        "doc:up": {
+                            #        "collection": {
                             #          "href": "http://localhost:3000/posts",
                             #          "title": "up"
                             #        },
                             #        "self": {
                             #          "href": "http://localhost:3000/posts/1"
                             #        },
-                            #        "doc:edit-form": {
+                            #        "edit-form": {
                             #          "href": "http://localhost:3000/posts/1/edit",
                             #          "title": "edit"
                             #        },
@@ -120,6 +120,16 @@ foobar.class            # => CustomResource
 foobar.attr_string      # => "key1_key2_key3"
 ```
 Note: This only serves the purpose of understanding how this works :)
+Instances of `ShafClient::Form` respond to the following methods:
+ - `#values`                        - Returns a hash of the form inputs
+ - `#[](key)`                       - Returns the value of a given input
+ - `#[]=(key, value)`               - Sets the value of a given input
+ - `#title`                         - Returns the title of the form
+ - `#target`                        - Returns the target href (where the form will be submitted to)
+ - `#http_method`                   - Returns the HTTP method to be used when submitting the form
+ - `#content_type`                  - Returns the content type used when the form is submitted
+ - `#submit`                        - Submit the form
+ - `#valid?`                        - Returns `true` if client side validations pass. Otherwise `false`
 
 ## HAL-FORMS
 ShafClient also support forms presented using the [HAL-FORMS](https://rwcbook.github.io/hal-forms/) mediatype.
