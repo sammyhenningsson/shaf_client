@@ -2,6 +2,11 @@
 
 require 'faraday'
 require 'faraday-http-cache'
+
+# FIXME remove this when faraday-http-cache has released  this fix
+# https://github.com/plataformatec/faraday-http-cache/pull/116
+require 'faraday_http_cache_patch'
+
 require 'json'
 require 'shaf_client/error'
 require 'shaf_client/middleware/redirect'
