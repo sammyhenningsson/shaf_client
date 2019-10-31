@@ -26,5 +26,9 @@ class ShafClient
       args[:rel] &&= args[:rel].to_s.sub(/#{name}:/, '')
       super(**args)
     end
+
+    def to_h
+      {name: name}.merge(super)
+    end
   end
 end

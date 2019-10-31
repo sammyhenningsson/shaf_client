@@ -25,6 +25,7 @@ class ShafClient
     def to_h
       attributes.dup.tap do |hash|
         hash[:_links] = transform_values_to_h(links)
+        hash[:_links].merge!(curies: curies.values.map(&:to_h)) unless curies.empty?
         embedded = transform_values_to_h(embedded_resources)
         hash[:_embedded] = embedded unless embedded.empty?
       end
