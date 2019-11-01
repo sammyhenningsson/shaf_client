@@ -15,6 +15,10 @@ class ShafClient
         mapping[content_type&.to_sym] = clazz
       end
 
+      def unregister(content_type)
+        mapping.delete(content_type.to_sym)
+      end
+
       def default=(clazz)
         mapping.default = clazz
       end

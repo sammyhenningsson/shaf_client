@@ -4,21 +4,23 @@ require 'shaf_client/base_resource'
 
 class ShafClient
   class Resource < BaseResource
+    include MimeTypes
+
     attr_reader :http_status, :headers
 
-    ResourceMapper.register("application/hal+json", self)
+    ResourceMapper.register(MIME_TYPE_HAL, self)
 
     def self.content_type(type)
       ResourceMapper.register(type, self)
     end
 
     def self.profile(name)
-      content_type "application/hal+json;profile=#{name}"
+      content_type "#{MIME_TYPE_HAL};profile=#{name}"
     end
 
-    def self.build(client, payload, status = nil, headers = {})
-      content_type = headers.fetch('content-type', '')
-      ResourceMapper.for(content_type).new(client, payload, status, headers)
+    def self.build(client, payload, content_type = MIME_TYPE_HAL, status = nil, headers = {})
+      ResourceMapper.for(content_type)
+        .new(client, payload, status, headers)
     end
 
     def initialize(client, payload, status = nil, headers = {})
@@ -44,14 +46,10 @@ class ShafClient
     end
 
     def get(rel, **options)
-      if embedded_resource = _embedded(rel)
-        # FIXME: What if this resource should have a profile (or another content type)?
-        headers = {'content-type' => 'application/hal+json'}
-        self.class.build(client, embedded_resource, 203, headers)
-      else
-        href = link(rel).href
-        client.get(href, payload: payload, **options)
-      end
+      href = link(rel).href
+      embedded_resource = _embedded(rel)
+      cached_resource = hypertext_cache_resource(href, embedded_resource, options)
+      cached_resource || client.get(href, **options)
     end
 
     def get_doc(rel, **options)
@@ -102,5 +100,34 @@ class ShafClient
     private
 
     attr_reader :client
+
+    def hypertext_cache_strategy(options)
+      options.fetch(:hypertext_cache_strategy) do
+        ShafClient.default_hypertext_cache_strategy
+      end
+    end
+
+    def hypertext_cache?(options)
+      HypertextCacheStrategy.cacheable? hypertext_cache_strategy(options)
+    end
+
+    def hypertext_cache_resource(href, embedded_resource, options)
+      return unless embedded_resource
+
+      cache_strategy = hypertext_cache_strategy(options)
+      return unless HypertextCacheStrategy.cacheable? cache_strategy
+
+      if HypertextCacheStrategy.fetch_headers? cache_strategy
+        resource = client.head(href, options)
+        status = resource.http_status
+        headers = resource.headers
+        embedded_resource = embedded_resource.payload
+      else
+        status = HypertextCacheStrategy.default_http_status
+        headers = HypertextCacheStrategy.default_headers
+      end
+
+      self.class.build(client, embedded_resource, headers['content-type'], status, headers)
+    end
   end
 end

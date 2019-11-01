@@ -65,7 +65,7 @@ describe ShafClient::Resource do
   end
 
   def stub_response(method: :get, uri:, payload: "", status: 200, headers: {})
-    headers['Content-Type'] ||= 'application/hal+json'
+    headers['Content-Type'] ||= ShafClient::MIME_TYPE_HAL
     stubs.send(method, uri) do
       [status, headers, payload]
     end

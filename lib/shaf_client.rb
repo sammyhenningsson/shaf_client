@@ -9,6 +9,7 @@ require 'faraday_http_cache_patch'
 
 require 'json'
 require 'shaf_client/error'
+require 'shaf_client/mime_types'
 require 'shaf_client/middleware/redirect'
 require 'shaf_client/resource'
 require 'shaf_client/shaf_form'
@@ -16,10 +17,12 @@ require 'shaf_client/hal_form'
 require 'shaf_client/api_error'
 require 'shaf_client/empty_resource'
 require 'shaf_client/unknown_resource'
+require 'shaf_client/hypertext_cache_strategy'
 
 class ShafClient
-  MIME_TYPE_JSON = 'application/json'
-  MIME_TYPE_HAL  = 'application/hal+json'
+  extend HypertextCacheStrategy
+  include MimeTypes
+
   DEFAULT_ADAPTER = :net_http
 
   def initialize(root_uri, **options)
@@ -35,7 +38,7 @@ class ShafClient
     get(@root_uri, **options)
   end
 
-  %i[get put post delete patch].each do |method|
+  %i[head get put post delete patch].each do |method|
     define_method(method) do |uri, payload: nil, **options|
       response = request(
         method: method,
@@ -45,9 +48,9 @@ class ShafClient
       )
 
       body = String(response.body)
-      response.headers['content-type'] = nil if body.empty?
+      content_type = response.headers['content-type'] unless body.empty?
 
-      Resource.build(self, body, response.status, response.headers)
+      Resource.build(self, body, content_type, response.status, response.headers)
     end
   end
 
