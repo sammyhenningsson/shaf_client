@@ -11,7 +11,7 @@ Or put `gem 'shaf_client'` in your Gemfile and run `bundle install`
 
 
 ## Usage
-Create an instance of `ShafClient` with a uri to the API entry point. Then call `get_root` on the returned client to start interacting with the API and get back a `ShafClient::Resource`.
+Create an instance of `ShafClient` with a uri to the API entry point. Then call `get_root` on the returned client to get back a `ShafClient::Resource` and start interacting with the API.
 ```ruby
 client = ShafClient.new('https://my.hal_api.com/')
 root = client.get_root
@@ -22,7 +22,7 @@ Instances of `ShafClient::Resource` respond to the following methods:
  - `#links`                                 - Returns a hash of all links
  - `#curies`                                - Returns a hash of all curies
  - `#embedded_resources`                    - Returns a hash of all embedded resources
- - `#attribute(key)`                        - Returns the value for attribute with key _key_
+ - `#attribute(key)`                        - Returns the value for the attribute with the given _key_
  - `#link(rel)`                             - Returns a `ShafClient::Link` for the given _rel_
  - `#curie(rel)`                            - Returns a `ShafClient::Curie` for the given _rel_
  - `#embedded(rel)`                         - Returns a `ShafClient::BaseResource` for the given _rel_
@@ -59,6 +59,7 @@ require 'shaf_client'
 client = ShafClient.new('http://localhost:3000')
 root = client.get_root      # Equivalent to client.get('http://localhost:3000')
 root.headers                # => {"content-type"=>"application/hal+json", "cache-control"=>"private, max-age=20"…
+root = client.get_root      # Returns same response as above, except this time no network request is performed. A cached                                 # response is returned instead
 root.actions                # => [:self, :posts, :comments]
 
 posts = root.get(:posts)
@@ -80,7 +81,6 @@ created_post.actions        # => [:"collection", :self, :"edit-form", :"doc:dele
 puts created_post.to_s      # => {
                             #      "title": "hello",
                             #      "message": "world",
-                            #      "user_id": 1,
                             #      "_links": {
                             #        "collection": {
                             #          "href": "http://localhost:3000/posts",
@@ -124,7 +124,7 @@ puts delete_doc.attribute(:delete) # => Link to delete this post.
 
 ## Adding semantic meaning to resources
 Note the form in the example above. `form` is an instance of `ShafClient::ShafForm` (which is a subclass of `ShafClient::Form` which in turn is a subclass of `ShafClient::Resource`).
-Forms have a few extra methods that makes it easy to fill in values and submiting them. The reason that we received an instance of `ShafClient::ShafForm` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of this representation and luckily ShafClient knowns about this profile.  
+Forms have a few extra methods that makes it easy to fill in values and submitting them. The reason that we received an instance of `ShafClient::ShafForm` rather than `ShafClient::Resource` is that the server responded with the Content-Type `application/hal+json;profile=shaf-form`. The [shaf-form](https://gist.github.com/sammyhenningsson/39c8aafeaf60192b082762cbf3e08d57) profile describes the semantic meaning of this representation and luckily ShafClient knowns about this profile.  
 Adding support for other profiles is as simple as creating a subclass of `ShafClient::Resource` and call the class method `profile` with the name of your profile. So say that you have a server that returns a response with Content-Type: `application/hal+json;profile=foobar`. Then you could do something like this:
 ```ruby
 class CustomResource < ShafClient::Resource
@@ -159,7 +159,7 @@ The `rel` given to `#get_hal_form(rel)` may be compacted with a curie. In that c
 
 ## Non HAL responses
 Of course, not all responses will be formatted as HAL. Whenever the response body is empty an instance of `ShafClient::EmptyResource` is returned.
-If the Content-Type cannot be understood an instance of `ShafClient::UnknownResource`.
+If the Content-Type cannot be understood an instance of `ShafClient::UnknownResource` is returned.
 These two classes also inherit from `ShafClient::Resource` so all the usual methods are still available (though most of them return `nil`, `""`, `{}` or `[]`).
 Instances of `ShafClient::UnknownResource` also has a`#body` method. `#body`, `#http_status` and `#headers` are basically the only usefull methods for those instances.
 
