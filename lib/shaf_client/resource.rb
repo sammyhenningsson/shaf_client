@@ -89,6 +89,10 @@ class ShafClient
       delete(:delete)
     end
 
+    def content_type
+      headers['content-type']
+    end
+
     protected
 
     def <<(other)
