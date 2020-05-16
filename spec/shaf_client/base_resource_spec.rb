@@ -13,6 +13,8 @@ describe ShafClient::BaseResource do
     _(resource.attribute(:foo)).must_equal 'foo'
     _(resource.attribute(:bar)).must_equal 2
     _(resource.attribute(:baz)).must_equal %w[a b c]
+    _ { resource.attribute(:not_present) }.must_raise ShafClient::Error
+    _(resource.attribute(:not_present) { 'hello' }).must_equal 'hello'
     _(resource.links).must_be_empty
     _(resource.embedded_resources).must_be_empty
   end
@@ -47,6 +49,10 @@ describe ShafClient::BaseResource do
     _(resource.link(:other)).must_be_instance_of ShafClient::Link
     _(resource.link(:other).href).must_equal '/other'
     _(resource.link(:other)).wont_be :templated?
+
+    _ { resource.link(:none) }.must_raise ShafClient::Error
+    _(resource.link(:none) { 'hello' }).must_equal 'hello'
+
     _(resource.attributes).must_be_empty
   end
 
@@ -73,6 +79,9 @@ describe ShafClient::BaseResource do
     _(curie).must_be :templated?
     _(curie.resolve_templated(rel: 'doc:other')).must_equal '/documentation/other'
     _(curie.resolve_templated(rel: 'other')).must_equal '/documentation/other'
+
+    _ { resource.curie(:none) }.must_raise ShafClient::Error
+    _(resource.curie(:none) { 'hello' }).must_equal 'hello'
   end
 
   it 'parses embedded reources' do
@@ -106,6 +115,9 @@ describe ShafClient::BaseResource do
     _(items).must_be_instance_of Array
     _(items.first.id).must_equal 1
     _(items.last.name).must_equal 'item2'
+
+    _ { resource.embedded(:none) }.must_raise ShafClient::Error
+    _(resource.embedded(:none) { 'hello' }).must_equal 'hello'
   end
 
   it '#<<' do

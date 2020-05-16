@@ -39,20 +39,24 @@ class ShafClient
       to_s
     end
 
-    def attribute(key)
-      _attribute(key) or raise Error, "No attribute for key: #{key}"
+    def attribute(key, &block)
+      block ||= proc { raise Error, "No attribute for key: #{key}" }
+      _attribute(key, &block)
     end
 
-    def link(rel)
-      _link(rel) or raise Error, "No link with rel: #{rel}"
+    def link(rel, &block)
+      block ||= proc { raise Error, "No link with rel: #{rel}" }
+      _link(rel, &block)
     end
 
-    def curie(rel)
-      _curie(rel) or raise Error, "No curie with rel: #{rel}"
+    def curie(rel, &block)
+      block ||= proc { raise Error, "No curie with rel: #{rel}" }
+      _curie(rel, &block)
     end
 
-    def embedded(rel)
-      _embedded(rel) or raise Error, "No embedded resources with rel: #{rel}"
+    def embedded(rel, &block)
+      block ||= proc { raise Error, "No embedded resources with rel: #{rel}" }
+      _embedded(rel, &block)
     end
 
     def rel?(rel)
@@ -75,22 +79,38 @@ class ShafClient
       @payload ||= {}
     end
 
-    def _attribute(key)
-      attributes[key.to_sym]
+    def _attribute(key, &block)
+      if block
+        attributes.fetch(key.to_sym, &block)
+      else
+        attributes[key.to_sym]
+      end
     end
 
-    def _link(rel)
+    def _link(rel, &block)
       rewritten_rel = best_match(links.keys, rel)
-      links[rewritten_rel]
+      if block
+        links.fetch(rewritten_rel, &block)
+      else
+        links[rewritten_rel]
+      end
     end
 
-    def _curie(rel)
-      curies[rel.to_sym]
+    def _curie(rel, &block)
+      if block
+        curies.fetch(rel.to_sym, &block)
+      else
+        curies[rel.to_sym]
+      end
     end
 
-    def _embedded(rel)
+    def _embedded(rel, &block)
       rewritten_rel = best_match(embedded_resources.keys, rel)
-      embedded_resources[rewritten_rel]
+      if block
+        embedded_resources.fetch(rewritten_rel, &block)
+      else
+        embedded_resources[rewritten_rel]
+      end
     end
 
     def <<(other)
