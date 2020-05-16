@@ -120,6 +120,19 @@ puts delete_doc.attribute(:delete) # => Link to delete this post.
                                    #         -X DELETE \
                                    #         /posts/5
 
+
+# Request headers can be given to #get, #put, etc throught the headers keyword argument
+problem_json = client.get('http://localhost:3000/idonotexist', headers: {'Accept' => 'application/problem+json'})
+puts problem_json.content_type    # => application/problem+json
+puts problem_json
+                                  # => {
+                                  #      "status": 404,
+                                  #      "type": "about:blank",
+                                  #      "title": "Not Found",
+                                  #      "detail": "Resource \"/idonotexist\" does not exist"
+                                  #    }
+
+
 ```
 
 ## Adding semantic meaning to resources
@@ -162,6 +175,7 @@ Of course, not all responses will be formatted as HAL. Whenever the response bod
 If the Content-Type cannot be understood an instance of `ShafClient::UnknownResource` is returned.
 These two classes also inherit from `ShafClient::Resource` so all the usual methods are still available (though most of them return `nil`, `""`, `{}` or `[]`).
 Instances of `ShafClient::UnknownResource` also has a`#body` method. `#body`, `#http_status` and `#headers` are basically the only usefull methods for those instances.
+Problem Json responses will return instances of `ShafClient::ProblemJson` (see example above).
 
 ## Authentication
 ShafClient supports basic auth and token based authentication.  
