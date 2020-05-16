@@ -17,8 +17,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.required_ruby_version = '>= 2.5'
-  gem.add_runtime_dependency "faraday", '~> 0.15'
+  gem.add_runtime_dependency "faraday", '~> 1.0'
   gem.add_runtime_dependency "faraday-http-cache", '~> 2.0'
-  gem.add_development_dependency "rake", '~> 12.0'
-  gem.add_development_dependency "minitest", '~> 5', '>= 5.10'
+  gem.add_development_dependency "rake", '~> 13.0'
+  gem.add_development_dependency "minitest", '~> 5', '>= 5.14'
 end

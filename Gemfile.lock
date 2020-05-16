@@ -2,26 +2,26 @@ PATH
   remote: .
   specs:
     shaf_client (0.7.0)
-      faraday (~> 0.15)
+      faraday (~> 1.0)
       faraday-http-cache (~> 2.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    faraday (0.17.0)
+    faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
-    faraday-http-cache (2.0.0)
-      faraday (~> 0.8)
-    minitest (5.11.3)
+    faraday-http-cache (2.2.0)
+      faraday (>= 0.8)
+    minitest (5.14.1)
     multipart-post (2.1.1)
-    rake (12.3.2)
+    rake (13.0.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  minitest (~> 5, >= 5.10)
-  rake (~> 12.0)
+  minitest (~> 5, >= 5.14)
+  rake (~> 13.0)
   shaf_client!
 
 BUNDLED WITH
