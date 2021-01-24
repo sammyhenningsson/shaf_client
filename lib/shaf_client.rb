@@ -55,11 +55,6 @@ class ShafClient
     end
   end
 
-  def stubs
-    return unless @adapter == :test
-    @stubs ||= Faraday::Adapter::Test::Stubs.new
-  end
-
   private
 
   attr_reader :options, :auth_header
@@ -105,9 +100,11 @@ class ShafClient
   end
 
   def connect_adapter(connection)
-    args = [@adapter]
-    args << stubs if @adapter == :test
-    connection.adapter(*args)
+    connection.adapter(*adapter_args)
+  end
+
+  def adapter_args
+    [@adapter]
   end
 
   def request(method:, uri:, payload: nil, opts: {})
