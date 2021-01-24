@@ -51,7 +51,6 @@ Instances of `ShafClient` respond to the following methods:
  - `#post(uri, payload, **options)`         - Performs a POST request to the given uri
  - `#delete(uri, payload, **options)`       - Performs a DELETE request to the given uri
  - `#patch(uri, payload, **options)`        - Performs a PATCH request to the given uri
- - `#stubs`                                 - Only used for testing
 
 ## Examples
 ```ruby
