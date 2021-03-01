@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(__dir__, '../lib/')
+
+require 'irb'
+require 'shaf_client'
+
+url = String(ENV['SHAF_CLIENT_URL'])
+user = ENV['SHAF_CLIENT_USER']
+pass = ENV['SHAF_CLIENT_PASSWORD']
+
+client = ShafClient.new(url, user: user, password: pass) unless url.empty?
+TOPLEVEL_BINDING.local_variable_set(:client, client)
+
+IRB.start
