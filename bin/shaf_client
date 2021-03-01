@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(__dir__, '../lib/')
+
+require 'irb'
+require 'optparse'
+require 'shaf_client'
+
+url = ARGV.shift || String(ENV['SHAF_CLIENT_URL'])
+options = {
+  user: ENV['SHAF_CLIENT_USER'],
+  password: ENV['SHAF_CLIENT_PASSWORD']
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: shaf_client [url]"
+
+  opts.on("-u", "--user user", "Username used for authentication") do |user|
+    options[:user] = user
+  end
+
+  opts.on("-p", "--password password", "Password used for authentication") do |pass|
+    options[:password] = pass
+  end
+end.parse! ARGV
+
+client = ShafClient.new(url, **options) unless url.empty?
+TOPLEVEL_BINDING.local_variable_set(:client, client)
+
+IRB.start

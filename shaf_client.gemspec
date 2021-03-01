@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.cert_chain  = ['certs/sammyhenningsson.pem']
   gem.signing_key = File.expand_path("~/.ssh/gem-private_key.pem") if $0 =~ /gem\z/
 
+  gem.executables   = ['shaf_client']
   gem.files         = Dir['lib/**/*rb']
   gem.require_paths = ["lib"]
 
