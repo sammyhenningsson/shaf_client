@@ -23,6 +23,10 @@ class ShafClient
         .new(client, payload, status, headers)
     end
 
+    def self.default_resource_class!
+      ResourceMapper.default = self
+    end
+
     def initialize(client, payload, status = nil, headers = {})
       @client = client
       @http_status = status
