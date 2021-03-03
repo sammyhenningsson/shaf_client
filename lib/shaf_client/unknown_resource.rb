@@ -2,9 +2,9 @@ require 'shaf_client/resource'
 
 class ShafClient
   class UnknownResource < Resource
-    attr_reader :http_status, :headers, :body
+    default_resource_class!
 
-    ResourceMapper.default = self
+    attr_reader :http_status, :headers, :body
 
     def initialize(_client, payload, status = nil, headers = {})
       @body = payload.freeze
