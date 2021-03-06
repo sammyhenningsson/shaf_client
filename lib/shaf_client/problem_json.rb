@@ -5,7 +5,7 @@ class ShafClient
   class ProblemJson < Resource
     include StatusCodes
 
-    content_type 'application/problem+json'
+    content_type MIME_TYPE_PROBLEM_JSON
 
     def type
       attribute(:type) { 'about:blank' }

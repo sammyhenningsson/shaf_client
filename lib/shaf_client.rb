@@ -16,6 +16,7 @@ require 'shaf_client/shaf_form'
 require 'shaf_client/hal_form'
 require 'shaf_client/api_error'
 require 'shaf_client/problem_json'
+require 'shaf_client/alps_json'
 require 'shaf_client/empty_resource'
 require 'shaf_client/unknown_resource'
 require 'shaf_client/hypertext_cache_strategy'
@@ -25,6 +26,12 @@ class ShafClient
   include MimeTypes
 
   DEFAULT_ADAPTER = :net_http
+  DEFAULT_ACCEPT_HEADER = [
+    MIME_TYPE_HAL,
+    MIME_TYPE_PROBLEM_JSON,
+    MIME_TYPE_ALPS_JSON,
+    '*/*;q=0.8',
+  ].join(', ')
 
   def initialize(root_uri, **options)
     @root_uri = root_uri.dup
@@ -62,7 +69,7 @@ class ShafClient
   def setup_default_headers
     @default_headers = {
       'Content-Type' => options.fetch(:content_type, MIME_TYPE_JSON),
-      'Accept' => options.fetch(:accept, MIME_TYPE_HAL)
+      'Accept' => options.fetch(:accept, DEFAULT_ACCEPT_HEADER)
     }
     return unless token = options[:auth_token]
 
