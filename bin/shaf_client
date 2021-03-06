@@ -3,13 +3,28 @@
 $:.unshift File.join(__dir__, '../lib/')
 
 require 'irb'
+require 'optparse'
 require 'shaf_client'
 
-url = String(ENV['SHAF_CLIENT_URL'])
-user = ENV['SHAF_CLIENT_USER']
-pass = ENV['SHAF_CLIENT_PASSWORD']
+url = ARGV.shift || String(ENV['SHAF_CLIENT_URL'])
+options = {
+  user: ENV['SHAF_CLIENT_USER'],
+  password: ENV['SHAF_CLIENT_PASSWORD']
+}
 
-client = ShafClient.new(url, user: user, password: pass) unless url.empty?
+OptionParser.new do |opts|
+  opts.banner = "Usage: shaf_client [url]"
+
+  opts.on("-u", "--user user", "Username used for authentication") do |user|
+    options[:user] = user
+  end
+
+  opts.on("-p", "--password password", "Password used for authentication") do |pass|
+    options[:password] = pass
+  end
+end.parse! ARGV
+
+client = ShafClient.new(url, **options) unless url.empty?
 TOPLEVEL_BINDING.local_variable_set(:client, client)
 
 IRB.start
