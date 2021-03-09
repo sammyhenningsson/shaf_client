@@ -10,17 +10,24 @@ class ShafClient
 
     ResourceMapper.register(MIME_TYPE_HAL, self)
 
-    def self.content_type(type)
-      ResourceMapper.register(type, self)
+    def self.content_type(type, profile: nil)
+      ResourceMapper.register(type, profile, self)
     end
 
     def self.profile(name)
-      content_type "#{MIME_TYPE_HAL};profile=#{name}"
+      content_type MIME_TYPE_HAL, profile: name
     end
 
     def self.build(client, payload, content_type = MIME_TYPE_HAL, status = nil, headers = {})
-      ResourceMapper.for(content_type)
-        .new(client, payload, status, headers)
+      resource_class, extensions = ResourceMapper.for(
+        content_type: content_type,
+        headers: headers,
+        payload: payload,
+        client: client,
+      )
+      resrc = resource_class.new(client, payload, status, headers)
+      extensions.compact.each { |extension| resrc.extend extension }
+      resrc
     end
 
     def self.default_resource_class!

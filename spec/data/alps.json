@@ -1,0 +1,69 @@
+{
+  "alps": {
+    "version": "1.0",
+    "descriptor": [
+      {
+        "id": "message",
+        "type": "semantic",
+        "doc": {
+          "value": "The text content of the post"
+        },
+        "name": "message"
+      },
+      {
+        "id": "delete",
+        "type": "idempotent",
+        "href": "/doc/profiles/shaf-basic#delete",
+        "doc": {
+          "value": "When a resource contains a link with rel 'delete', this\nmeans that the autenticated user (or any user if the\ncurrent user has not been authenticated), may send a\nDELETE request to the href of the link.\nIf a DELETE request is sent to this href then the corresponding\nresource will be deleted.\n"
+        },
+        "name": "delete",
+        "ext": [
+          {
+            "id": "http_method",
+            "href": "https://gist.github.com/sammyhenningsson/2103d839eb79a7baf8854bfb96bda7ae",
+            "value": [
+              "DELETE"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "foobar",
+        "type": "safe",
+        "href": "/hello/world",
+        "doc": {
+          "value": "Lorem ipsum"
+        },
+        "name": "foobar",
+        "rt": "appliation/hal+json",
+        "ext": [
+          {
+            "id": "http_method",
+            "href": "https://gist.github.com/sammyhenningsson/2103d839eb79a7baf8854bfb96bda7ae",
+            "value": [
+              "GET"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "publish",
+        "type": "idempotent",
+        "doc": {
+          "value": "The link relation 'publish' means that the corresponding post resource\nmay be requested to be published. To activate this link relation, perform\nan HTTP PUT request to the href of this link relation.\n"
+        },
+        "name": "publish",
+        "ext": [
+          {
+            "id": "http_method",
+            "href": "https://gist.github.com/sammyhenningsson/2103d839eb79a7baf8854bfb96bda7ae",
+            "value": [
+              "PUT"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
