@@ -18,10 +18,6 @@ class ShafClient
       def default_http_status
         203
       end
-
-      def default_headers
-        {'content-type' => 'application/hal+json'}
-      end
     end
 
     def default_hypertext_cache_strategy

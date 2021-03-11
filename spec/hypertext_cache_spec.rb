@@ -49,7 +49,9 @@ describe "Hypertext Cache Pattern" do
       }
     )
   end
-  let(:resource) { ShafClient::Resource.new(client, post) }
+  let(:resource) do
+    ShafClient::Resource.new(client, post, 200, {'content-type' => ShafClient::MIME_TYPE_HAL})
+  end
   let(:mock_resource) { Class.new(ShafClient::Resource) }
   let(:content_type) { "#{ShafClient::MIME_TYPE_HAL}; profile=#{profile}" }
   let(:profile) { "foobar" }

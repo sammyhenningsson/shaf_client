@@ -154,11 +154,15 @@ class ShafClient
       embedded.each do |key, value|
         @embedded_resources[key.to_sym] =
           if value.is_a? Array
-            value.map { |d| BaseResource.new(d) }
+            value.map { |d| build_embedded_resource(d) }
           else
-            BaseResource.new(value)
+            build_embedded_resource(value)
           end
       end
+    end
+
+    def build_embedded_resource(payload)
+      BaseResource.new(payload)
     end
 
     def method_missing(method_name, *args, &block)

@@ -5,7 +5,12 @@ describe ShafClient::Resource do
   let(:client) { ShafClient.new(root_url, faraday_adapter: :test) }
   let(:stubs) { client.stubs }
   let(:resource) do
-    ShafClient::Resource.new(client, document, 200, 'X-Foo' => :bar)
+    ShafClient::Resource.new(
+      client,
+      document,
+      200,
+      {'content-type' => ShafClient::MIME_TYPE_HAL}
+    )
   end
   let(:document) do
     <<~JSON

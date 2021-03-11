@@ -107,6 +107,7 @@ class ShafClient
     protected
 
     def <<(other)
+      @client       = other.client
       @http_status  = other.http_status.dup
       @headers      = other.headers.dup
       super
@@ -115,6 +116,16 @@ class ShafClient
     private
 
     attr_reader :client
+
+    def build_embedded_resource(payload)
+      self.class.build(
+        client,
+        payload,
+        headers['content-type'],
+        http_status,
+        headers
+      )
+    end
 
     def hypertext_cache_strategy(options)
       options.fetch(:hypertext_cache_strategy) do
@@ -139,7 +150,7 @@ class ShafClient
         embedded_resource = embedded_resource.payload
       else
         status = HypertextCacheStrategy.default_http_status
-        headers = HypertextCacheStrategy.default_headers
+        headers = embedded_resource.headers
       end
 
       self.class.build(client, embedded_resource, headers['content-type'], status, headers)
