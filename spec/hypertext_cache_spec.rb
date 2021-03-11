@@ -51,14 +51,15 @@ describe "Hypertext Cache Pattern" do
   end
   let(:resource) { ShafClient::Resource.new(client, post) }
   let(:mock_resource) { Class.new(ShafClient::Resource) }
-  let(:content_type) { "#{ShafClient::MIME_TYPE_HAL};foobar" }
+  let(:content_type) { "#{ShafClient::MIME_TYPE_HAL}; profile=#{profile}" }
+  let(:profile) { "foobar" }
 
   before do
-    ShafClient::ResourceMapper.register(content_type, mock_resource)
+    ShafClient::ResourceMapper.register(content_type, profile, mock_resource)
   end
 
   after do
-    ShafClient::ResourceMapper.unregister(content_type)
+    ShafClient::ResourceMapper.unregister(content_type, profile)
   end
 
   it 'returns the embedded resource' do

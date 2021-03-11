@@ -1,5 +1,3 @@
-require 'shaf_client/alps/extension'
-
 class ShafClient
   module Alps
     class Extension

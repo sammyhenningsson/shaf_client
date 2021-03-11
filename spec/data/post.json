@@ -1,0 +1,28 @@
+{
+  "message": "hello",
+  "_links": {
+    "profile": {
+      "href": "http://localhost:3000/doc/profiles/post"
+    },
+    "collection": {
+      "href": "http://localhost:3000/posts"
+    },
+    "self": {
+      "href": "http://localhost:3000/posts/1"
+    },
+    "author": {
+      "href": "http://localhost:3000/users/1"
+    },
+    "publish": {
+      "href": "http://localhost:3000/users/1"
+    },
+    "curies": [
+      {
+        "name": "doc",
+        "href": "http://localhost:3000/doc/profiles/post{#rel}",
+        "templated": true
+      }
+    ]
+  }
+}
+
