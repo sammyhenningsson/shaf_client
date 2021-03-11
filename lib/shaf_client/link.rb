@@ -27,8 +27,8 @@ class ShafClient
       return href unless templated?
 
       href
-        .then { |href| resolve_required(href, **args) }
-        .then { |href| resolve_optional(href, **args) }
+        .yield_self { |href| resolve_required(href, **args) }
+        .yield_self { |href| resolve_optional(href, **args) }
     end
 
     def to_h
