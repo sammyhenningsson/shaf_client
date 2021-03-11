@@ -44,11 +44,12 @@ class ClientSpec < Minitest::Spec
   include TestDataHelper
   include ResourceMapperCleaner
 
+  let(:client) { ShafClient.new('https://a.io', faraday_adapter: :test) }
+  let(:stubs) { client.stubs }
+
   around do |&block|
     reset_content_type_mapping { super(&block) }
   end
 
   register_spec_type(self) { true }
 end
-
-

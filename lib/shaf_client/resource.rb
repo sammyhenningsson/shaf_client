@@ -74,7 +74,7 @@ class ShafClient
 
       curie = curie(curie_name)
       uri = curie.resolve_templated(rel: rel)
-      client.get(uri, options)
+      client.get(uri, **options)
     end
 
     def get_hal_form(rel)
@@ -133,7 +133,7 @@ class ShafClient
       return unless HypertextCacheStrategy.cacheable? cache_strategy
 
       if HypertextCacheStrategy.fetch_headers? cache_strategy
-        resource = client.head(href, options)
+        resource = client.head(href, **options)
         status = resource.http_status
         headers = resource.headers
         embedded_resource = embedded_resource.payload

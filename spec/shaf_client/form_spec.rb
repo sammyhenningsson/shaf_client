@@ -16,9 +16,6 @@ class ShafClient
   module FormSpec
     extend Minitest::Spec::DSL
 
-    let(:http_method) { 'POST' }
-    let(:client) { Minitest::Mock.new }
-
     it '#[] and #[]=' do
       field = @form.fields.first
       _(field).wont_be_nil
@@ -59,17 +56,14 @@ class ShafClient
     end
 
     it '#submit' do
-      method = http_method.downcase.to_sym
-      client.expect method, nil do |target, **kwargs|
-        next unless target == @form.target
-        next unless kwargs[:payload]
-        next unless kwargs[:headers]['Content-Type'] == @form.content_type
-        true
+      method = @form.http_method.downcase.to_sym
+      stubs.send(method, @form.target) do
+        [201, {'Content-Type' => 'text/plain'}, 'done']
       end
 
-      @form.submit
+      response = @form.submit
 
-      client.verify
+      _(response.body).must_equal 'done'
     end
   end
 end

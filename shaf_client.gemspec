@@ -21,6 +21,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "faraday", '~> 1.0'
   gem.add_runtime_dependency "faraday-http-cache", '~> 2.0'
   gem.add_development_dependency "rake", '~> 13.0'
-  gem.add_development_dependency "minitest", '~> 5', '>= 5.14'
+  gem.add_development_dependency "minitest", '~> 5', '>= 5.14.3'
   gem.add_development_dependency "minitest-hooks"
 end

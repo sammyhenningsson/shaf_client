@@ -24,7 +24,7 @@ class ShafClient
 
     def fields
       template[:properties].map do |values|
-        Field.new(values.transform_keys(&:to_sym))
+        Field.new(**values.transform_keys(&:to_sym))
       end
     end
 

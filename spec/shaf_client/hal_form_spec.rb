@@ -6,6 +6,7 @@ class ShafClient
   describe HalForm do
     include FormSpec
 
+    let(:http_method) { 'POST' }
     let(:form) do
       ShafClient::HalForm.new(
         client,

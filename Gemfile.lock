@@ -15,7 +15,7 @@ GEM
     faraday-http-cache (2.2.0)
       faraday (>= 0.8)
     faraday-net_http (1.0.1)
-    minitest (5.14.1)
+    minitest (5.14.4)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
     multipart-post (2.1.1)
@@ -26,10 +26,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  minitest (~> 5, >= 5.14)
+  minitest (~> 5, >= 5.14.3)
   minitest-hooks
   rake (~> 13.0)
   shaf_client!
 
 BUNDLED WITH
-   1.17.3
+   2.2.3

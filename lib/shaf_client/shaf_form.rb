@@ -27,7 +27,7 @@ class ShafClient
 
     def fields
       attribute(:fields).map do |values|
-        Field.new(values.transform_keys(&:to_sym))
+        Field.new(**values.transform_keys(&:to_sym))
       end
     end
   end
