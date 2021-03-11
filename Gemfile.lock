@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    shaf_client (0.7.1)
+    shaf_client (1.0.0)
       faraday (~> 1.0)
       faraday-http-cache (~> 2.0)
 
@@ -32,4 +32,4 @@ DEPENDENCIES
   shaf_client!
 
 BUNDLED WITH
-   2.2.3
+   2.2.14
