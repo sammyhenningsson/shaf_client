@@ -69,12 +69,6 @@ class ShafClient
       ResourceMapper.register(other_content_type, Float)
     end
 
-    after do
-      ResourceMapper.unregister(content_type)
-      ResourceMapper.unregister(content_type, profile_url)
-      ResourceMapper.unregister(other_content_type)
-    end
-
     describe 'content type without profile' do
       it 'returns registered class for content type' do
         result, extensions = ResourceMapper.for(content_type: content_type)

@@ -58,10 +58,6 @@ describe "Hypertext Cache Pattern" do
     ShafClient::ResourceMapper.register(content_type, profile, mock_resource)
   end
 
-  after do
-    ShafClient::ResourceMapper.unregister(content_type, profile)
-  end
-
   it 'returns the embedded resource' do
     stubs.get(author_path) do
       raise 'An HTTP request was made. But expected behavior is to return the embedded resource'
