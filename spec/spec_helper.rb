@@ -1,19 +1,7 @@
 require 'shaf_client'
+require 'shaf_client/test/stubbing'
 require 'minitest/autorun'
 require 'minitest/hooks'
-
-module Stubbing
-  def stubs
-    return unless @adapter == :test
-    @stubs ||= Faraday::Adapter::Test::Stubs.new
-  end
-
-  def adapter_args
-    args = super
-    args << stubs if @adapter == :test
-    args 
-  end
-end
 
 module TestDataHelper
   def fixture_file(name)
@@ -37,7 +25,7 @@ module ResourceMapperCleaner
   end
 end
 
-ShafClient.prepend Stubbing
+ShafClient.prepend ShafClient::Test::Stubbing
 
 class ClientSpec < Minitest::Spec
   include Minitest::Hooks
