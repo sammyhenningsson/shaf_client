@@ -27,7 +27,7 @@ PLATFORMS
 
 DEPENDENCIES
   minitest (~> 5, >= 5.14.3)
-  minitest-hooks
+  minitest-hooks (~> 1)
   rake (~> 13.0)
   shaf_client!
 
