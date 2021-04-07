@@ -5,6 +5,7 @@ class ShafClient
     let(:clazz) { Class.new(Resource) }
     let(:content_type) { 'application/vnd.foobar' }
     let(:profile_url) { 'https://foo.bar/profile' }
+    let(:profile_urn) { 'urn:foo:bar' }
     let(:class_with_profile) { Class.new(clazz) }
     let(:other_content_type) { 'application/other' }
     let(:client) { ShafClient.new('https://api.root.com', faraday_adapter: :test) }
@@ -66,6 +67,7 @@ class ShafClient
     before do
       ResourceMapper.register(content_type, clazz)
       ResourceMapper.register(content_type, profile_url, class_with_profile)
+      ResourceMapper.register(content_type, profile_urn, class_with_profile)
       ResourceMapper.register(other_content_type, Float)
     end
 
@@ -79,8 +81,19 @@ class ShafClient
     end
 
     describe 'registered content type with profile' do
-      it 'looks up profile from content type' do
+      it 'looks up profile from url in content type' do
         content_type_with_profile = "#{content_type}; profile=#{profile_url}"
+
+        result, extensions = ResourceMapper.for(
+          content_type: content_type_with_profile
+        )
+
+        _(result).must_equal class_with_profile
+        _(extensions).must_equal []
+      end
+
+      it 'looks up profile from urn in content type' do
+        content_type_with_profile = "#{content_type}; profile=#{profile_urn}"
 
         result, extensions = ResourceMapper.for(
           content_type: content_type_with_profile

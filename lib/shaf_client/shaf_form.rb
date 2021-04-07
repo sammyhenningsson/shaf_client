@@ -3,7 +3,8 @@ require 'shaf_client/form'
 class ShafClient
   class ShafForm < Form
 
-    profile 'shaf-form'
+    profile 'shaf-form' #  Legacy profiles
+    profile 'urn:shaf:form' # New style. Shaf version >= 2.1.0
 
     def title
       attribute(:title)
