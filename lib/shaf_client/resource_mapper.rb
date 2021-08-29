@@ -10,7 +10,7 @@ class ShafClient
         profile = profile_from(content_type, headers, payload)
         clazz, extensions = result_for(content_type, payload, profile, client)
 
-        raise_unsupported_error(content_type) unless clazz
+        raise UnSupportedContentType, content_type unless clazz
 
         [clazz, extensions]
       end
@@ -95,10 +95,6 @@ class ShafClient
         return unless profile&.start_with? %r{https?://}
 
         client.get(profile)
-      end
-
-      def raise_unsupported_error(content_type)
-        raise UnSupportedContentType, "Can't handle Content-Type: #{content_type}"
       end
     end
   end
