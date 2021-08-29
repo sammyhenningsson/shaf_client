@@ -133,10 +133,6 @@ class ShafClient
       end
     end
 
-    def hypertext_cache?(options)
-      HypertextCacheStrategy.cacheable? hypertext_cache_strategy(options)
-    end
-
     def hypertext_cache_resource(href, embedded_resource, options)
       return unless embedded_resource
 

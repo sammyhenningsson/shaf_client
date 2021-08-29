@@ -29,12 +29,12 @@ class ShafClient
 
           Module.new.tap do |mod|
             descriptors.each do |descriptor|
-              add_method(mod, descriptor, methods.first)
+              add_method(mod, descriptor)
             end
           end
         end
 
-        def add_method(mod, descriptor, method)
+        def add_method(mod, descriptor)
           rel = identifier_for(descriptor)
           return unless rel
 
