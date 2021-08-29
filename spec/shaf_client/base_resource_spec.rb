@@ -56,6 +56,28 @@ describe ShafClient::BaseResource do
     _(resource.attributes).must_be_empty
   end
 
+  it 'parses links in array' do
+    payload = JSON.generate(
+      _links: {
+        self: { href: '/self' },
+        other: [
+          { href: '/other1' },
+          { href: '/other2' }
+        ]
+      }
+    )
+    resource = ShafClient::BaseResource.new(payload)
+
+    _(resource.link(:other).size).must_equal 2
+    link1, link2 = resource.link(:other)
+    _(link1).must_be_instance_of ShafClient::Link
+    _(link1.href).must_equal '/other1'
+    _(link1).wont_be :templated?
+    _(link2).must_be_instance_of ShafClient::Link
+    _(link2.href).must_equal '/other2'
+    _(link2).wont_be :templated?
+  end
+
   it 'parses curies' do
     payload = JSON.generate(
       _links: {
