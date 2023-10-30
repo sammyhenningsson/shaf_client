@@ -266,9 +266,9 @@ post.get(:author, hypertext_cache_strategy: :fetch_headers)
 ```
 
 ## Example API
-If you would like to try out ShafClient but don't yet have a HAL API, then an example api, created with [Shaf](https://github.com/sammyhenningsson/shaf), can be found [here](https://shaf-blog-demo.herokuapp.com/).
+If you would like to try out ShafClient but don't yet have a HAL API, then an example api, created with [Shaf](https://github.com/sammyhenningsson/shaf), can be found [here](https://shaf-blog-demo.onrender.com/).
 ```ruby
-client = ShafClient.new("https://shaf-blog-demo.herokuapp.com/")
+client = ShafClient.new("https://shaf-blog-demo.onrender.com/")
 …
 ```
 
